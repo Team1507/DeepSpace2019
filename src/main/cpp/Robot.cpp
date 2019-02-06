@@ -1,32 +1,44 @@
 #include "Robot.h"
-
 #include <frc/commands/Scheduler.h>
 #include <frc/smartdashboard/SmartDashboard.h>
-#include "subsystems/Drivetrain.h"
+#include "GamepadMap.h"
 OI* Robot::m_oi;
+
 Drivetrain* Robot::m_drivetrain;
+Collector* Robot::m_collector;
+Carriage* Robot::m_carriage;
+Elevator *Robot::m_elevator;
+
 void Write2Dashboard(void);
 
 void Robot::RobotInit() {
-    frc::SmartDashboard::PutData("Auto Modes", &m_chooser);
-
+    //*************************** INIT ******************************
+    std::cout<<"RobotInit"<<std::endl;
+	std::cout<<"Orion 2019"<<std::endl;
+	std::cout<<"Version: " << __DATE__ <<"  "<<__TIME__<<std::endl<<std::endl; //Display Version info to Log file
+    
     //******Subsystem Inits******
     m_drivetrain = new Drivetrain();
-
+    m_collector  = new Collector();
+    m_carriage   = new Carriage();
+    m_elevator   = new Elevator();
+    
     //OI **MUST** be after all subsystem Inits
     m_oi = new OI();
 
-    //******** INIT ***************************
-    std::cout<<"RobotInit"<<std::endl;
-	std::cout<<"Orion 2019"<<std::endl;
-	//Display Version info to Log file, for posterity
-	std::cout<<"Version: " << __DATE__ <<"  "<<__TIME__<<std::endl<<std::endl;
-}
 
+    ahrs = new AHRS(SPI::Port::kMXP);
+    
+    frc::SmartDashboard::PutData("Auto Modes", &m_chooser);
+
+    m_drivetrain->LineSensorsRetract();
+    m_elevator->TalonSRXinit();
+}
 
 void Robot::RobotPeriodic() 
 {
     m_drivetrain->DrivetrainPeriodic();
+    m_elevator->Periodic();
     Write2Dashboard();
 }
 

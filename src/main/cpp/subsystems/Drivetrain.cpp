@@ -3,13 +3,12 @@
 #include "Subsystems\Drivetrain.h"
 #include <math.h>
 #include <iostream>
-//#include "Commands\CmdDriveWithGamepad.h"
 #include "C:/Users/Admin/navx-mxp/cpp/include/AHRS.h"
 #include "OI.h"
 #include "GamepadMap.h"
 
 
-//Line Follower State Machine
+//Line Follower State Machine defines
 #define STATE_LINE_HUNT 	 0
 #define STATE_LINE_FOLLOW  	 1
 #define BASE_THROTTLE      	.35  //.4	
@@ -23,39 +22,32 @@ const int Drivetrain::RETRACT_STILTS = 0;
 const int Drivetrain::DEPLOY_STILTS  = 1;
 const int Drivetrain::ENC_TICKS_PER_INCH = 42;
 
-frc::DigitalInput *wallPhotoeye;
-
 
 Drivetrain::Drivetrain() : Subsystem("Drivetrain") 
 {
-	std::cout << "In Drivetrain" << std::endl;
+    std::cout << "In Drivetrain" << std::endl;
 
-	leftDriveTalon = new TalonSRX(7); 
-  	leftDriveVictor = new VictorSPX(8); 
- 	rightDriveTalon = new TalonSRX(9);
+	leftDriveTalon   = new TalonSRX(7); 
+  	leftDriveVictor  = new VictorSPX(8); 
+ 	rightDriveTalon  = new TalonSRX(9);
  	rightDriveVictor = new VictorSPX(10);
 
-  	wallPhotoeye = new frc::DigitalInput(6);
-		
-	
-	gearShift         = new frc::DoubleSolenoid(1, 0, 1);
+	gearShift         = new frc::DoubleSolenoid(1, 0, 1);	
 	stilts            = new frc::DoubleSolenoid(1, 0, 1);
-
-
-	analog0 = new frc::AnalogInput(0);
-  	analog1 = new frc::AnalogInput(1);
- 	analog2 = new frc::AnalogInput(2);
-
-	wallPhotoeye = new frc::DigitalInput(6);
-
-	ahrs  	= new AHRS(SPI::Port::kMXP);
+	wallPhotoeye      = new frc::DigitalInput(6);
+    
+    ahrs  	= new AHRS(SPI::Port::kMXP);
 	
+    analog0 = new frc::AnalogInput(0);
+  	analog1 = new frc::AnalogInput(1);
+ 	analog2 = new frc::AnalogInput(2);	
 }
 
 void Drivetrain::Init(void)
 {
 	leftDriveTalon->SetNeutralMode(NeutralMode::Brake);
   	rightDriveTalon->SetNeutralMode(NeutralMode::Brake);
+
   	//encoder code
   	leftDriveTalon->ConfigSelectedFeedbackSensor(FeedbackDevice::QuadEncoder,0,0);
   	rightDriveTalon->ConfigSelectedFeedbackSensor(FeedbackDevice::QuadEncoder,0,0);
@@ -64,27 +56,8 @@ void Drivetrain::Init(void)
   	rightDriveVictor->Follow(*rightDriveTalon);  
 }
 
-
-void Drivetrain::InitDefaultCommand() {
-  //SetDefaultCommand(new CmdDriveWithGamepad() );
-}
-
-
-int	Drivetrain::GetLeftEncoder(void)
+void Drivetrain::InitDefaultCommand() 
 {
-	return 0;//HEY DUMMY PUT THE ENCODER STUFF HERE
-}
-int Drivetrain::GetRightEncoder(void)
-{
-	return 0;//HEY DUMMY PUT THE ENCODER STUFF HERE
-}
-
-
-//**************************************************************
-void Drivetrain::ResetEncoders(void)
-{
-	// leftEncoder->Reset();
-	// rightEncoder->Reset();
 }
 
 void Drivetrain::DrivetrainPeriodic(void)
@@ -125,9 +98,26 @@ void Drivetrain::DrivetrainPeriodic(void)
 	frc::SmartDashboard::PutNumber("wallPhotoeye", wallPhotoeye->Get());
 }
 
+int	Drivetrain::GetLeftEncoder(void)
+{
+	return 0;//HEY DUMMY PUT THE ENCODER STUFF HERE
+}
 
+int Drivetrain::GetRightEncoder(void)
+{
+	return 0;//HEY DUMMY PUT THE ENCODER STUFF HERE
+}
 
-//**************************************************************
+void Drivetrain::ResetEncoders(void)
+{
+	// leftEncoder->Reset();
+	// rightEncoder->Reset();
+}
+
+bool Drivetrain::IsPhotoeyeDetected(void)
+{
+	return wallPhotoeye->Get();
+}
 void Drivetrain::DriveWithGamepad( void )
 {
 	//return;
@@ -146,7 +136,7 @@ void Drivetrain::DriveWithGamepad( void )
 	if (fabs(xR)<= deadband) xR = 0;
 
 
-	if(tL >= .5) //if LEFT Trigger pushed, Enable Line Follow if line is detected 
+	if(tL >= 0.5) //if LEFT Trigger pushed, Enable Line Follow if line is detected 
 	{
 		//If Sensors not deployed, deploy them
 		if( !lineSensorsDeployed )
@@ -170,7 +160,7 @@ void Drivetrain::DriveWithGamepad( void )
 		
 	// 	Arcade Drive
 	//differentialDrive->ArcadeDrive(yL,xR,  true); 
-	//^We have no idea what to put there for the talons
+	//^HEY REPLACE WITH THE NEW ARCADE DRIVE LINE
 }
 
 //**************************************************************
@@ -212,8 +202,8 @@ double Drivetrain::GetGyroPitch(void)
 }
 void Drivetrain::ZeroGyro(void)
 {
-  std::cout<<"ZeroGyro"<<std::endl;
-	ahrs->ZeroYaw();
+    std::cout<<"ZeroGyro"<<std::endl;
+    ahrs->ZeroYaw();
 	//**OR
 	//ahrs->Reset();//????
 }
@@ -250,7 +240,7 @@ bool Drivetrain::LineFollower(void)
 			{
 				frc::SmartDashboard::PutNumber("Current Line State", m_currLineState);
 				//RUMBLE TIME BABYYYYYYYYY WOOOOOO
-				//pretty rainbow lights baby woo (not as cool as rumble but whatever)
+				//HEY light command stuff (not as cool as rumble but whatever)
 				switch(m_currLineState) //This is the switch for the actual line following
 				{
 					//THIS IS THE NIGHTMARE OF ALL THE CRAZY CASES. if 101...panic
@@ -313,7 +303,7 @@ void Drivetrain::LineSensorsDeploy(void)
 	lineSensorsDeployed = true;
 	std::cout << "Line Sensors Deploy" << std::endl;
 }
-//**************** TRANNY *********************
+//****************** TRANNY **************************
 
 void Drivetrain::SetLowGear( void )
 {
@@ -370,9 +360,4 @@ bool Drivetrain::AreStiltsDeployed(void)
 	else
 		return false;
   return false;
-}
-//********PhotoEye***********
-bool Drivetrain::IsPhotoeyeDetected(void)
-{
-	return wallPhotoeye->Get();
 }
