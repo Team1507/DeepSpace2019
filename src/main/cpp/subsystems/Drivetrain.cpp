@@ -6,6 +6,8 @@
 #include "C:/Users/Admin/navx-mxp/cpp/include/AHRS.h"
 #include "OI.h"
 #include "GamepadMap.h"
+#include "commands/GrpDriveOffHAB.h"
+#include "commands/GrpDriveOnHAB.h"
 
 
 //Line Follower State Machine defines
@@ -92,10 +94,12 @@ void Drivetrain::DrivetrainPeriodic(void)
 	if(rightEye) currState = currState + 1;
 	m_currLineState = currState;
 
-	//Write Gyro to dashboard
+	//Write Gyro and photoeye state to dashboard
 	frc::SmartDashboard::PutNumber("GyroAngle", GetGyroAngle());
-	
 	frc::SmartDashboard::PutNumber("wallPhotoeye", wallPhotoeye->Get());
+
+	//*************
+
 }
 
 int	Drivetrain::GetLeftEncoder(void)
@@ -129,14 +133,25 @@ void Drivetrain::DriveWithGamepad( void )
 	double xR = -(Robot::m_oi->DriverGamepad()->GetRawAxis(GAMEPADMAP_AXIS_R_X)); //ben did this to fix L being R and R being L
 	double tL = Robot::m_oi->DriverGamepad()->GetRawAxis(GAMEPADMAP_AXIS_L_TRIG);
 	double tR = Robot::m_oi->DriverGamepad()->GetRawAxis(GAMEPADMAP_AXIS_R_TRIG);
-
+	bool   bL = Robot::m_oi->DriverGamepad()->GetRawButton(GAMEPADMAP_BUTTON_LBUMP);
 	if (fabs(yL)<= deadband) yL = 0;
 	if (fabs(xL)<= deadband) xL = 0;
 	if (fabs(yR)<= deadband) yR = 0;
 	if (fabs(xR)<= deadband) xR = 0;
 
+	
+	//*************Extend/retract stilts*************
+	double povAngle = Robot::m_oi->DriverGamepad()->GetPOV(0);
+	SmartDashboard::PutNumber("DriverPOVAngle",povAngle);
+	if( Robot::m_oi->DriverGamepad()->GetRawAxis(2) >= .5 && povAngle == 0.0)SetStilts(RETRACT_STILTS);
+	if( Robot::m_oi->DriverGamepad()->GetRawAxis(2) >= .5 && povAngle == 270.0)SetStilts(DEPLOY_STILTS);
 
-	if(tL >= 0.5) //if LEFT Trigger pushed, Enable Line Follow if line is detected 
+	//**********Auto Climb and Descend**********
+	if( Robot::m_oi->DriverGamepad()->GetRawAxis(2) >= .5 && Robot::m_oi->DriverGamepad()->GetRawButton(4))GrpDriveOnHAB(); //HEY check if this is right
+	if( Robot::m_oi->DriverGamepad()->GetRawAxis(2) >= .5 && Robot::m_oi->DriverGamepad()->GetRawButton(1))GrpDriveOffHAB();
+
+
+	if(bL) //if LEFT bumper pushed, Enable Line Follow if line is detected 
 	{
 		//If Sensors not deployed, deploy them
 		if( !lineSensorsDeployed )
@@ -330,10 +345,10 @@ bool Drivetrain::IsLowGear(void)
 		return true;
 	else
 		return false;
-  return false;
+  	return false;
 }
-//**************** STILTS *********************
 
+//**************** STILTS *********************
 void Drivetrain::DeployStilts( void )
 {
 	stilts->Set(DoubleSolenoid::kForward);

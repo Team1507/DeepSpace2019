@@ -39,6 +39,8 @@ void Robot::RobotPeriodic()
 {
     m_drivetrain->DrivetrainPeriodic();
     m_elevator->Periodic();
+    m_collector->CollectorPeriodic();
+    m_carriage->Periodic();
     Write2Dashboard();
 }
 

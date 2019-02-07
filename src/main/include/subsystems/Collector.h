@@ -17,6 +17,7 @@ class Collector : public frc::Subsystem {
  public:
     Collector();
     void InitDefaultCommand() override;
+    void CollectorPeriodic(void);
     bool IsPhotoeyeDetected(void);
     void DeployCage(void);
     void RetractCage(void);
@@ -32,6 +33,9 @@ class Collector : public frc::Subsystem {
     const static int DEPLOY_CAGE;
     const static int COLLECT_SPEED;
     const static int BRIDGE_SPEED;
+    const static int MANUAL_SPIT_SPEED;
+    const static int MANUAL_INTAKE_FAST;
+    const static int MANUAL_INTAKE_SLOW;
     void CollectorMotor(double power);
     void StopCollectorMotor(void);
 };

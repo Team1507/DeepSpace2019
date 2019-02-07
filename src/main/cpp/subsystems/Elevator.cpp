@@ -34,7 +34,7 @@ void Elevator::Periodic() {
 
     //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~Manual Elevator Control~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 	
-	// double yL = Robot::m_oi->DriverGamepad()->GetRawAxis(GAMEPADMAP_AXIS_L_Y);
+	// double yL = Robot::m_oi->OperatorGamepad()->GetRawAxis(GAMEPADMAP_AXIS_L_Y);
 	// if(fabs(yL) <= DEADZONE_CONST) yL = 0;	//Deadzone code
 	// elevatorTalonSRX->Set(ControlMode::PercentOutput, yL *(-1.0));
 	//Position mode - button just pressed
@@ -74,12 +74,12 @@ void Elevator::Periodic() {
 
 
 
-	// //~~~~~~~~~~~~~~~~~~~~~~~~~~~~Driver Gamepad POV for elevator control~~~~~~~~~~~~~~~~~~~~~~~
+	// //~~~~~~~~~~~~~~~~~~~~~~~~~~~~Operator Gamepad POV for elevator control~~~~~~~~~~~~~~~~~~~~~~~
 	// //0 = Up, 90 = Right, 180 = Down, 270 = Left
-	// double povAngle = Robot::m_oi->DriverGamepad()->GetPOV(0);
+	// double povAngle = Robot::m_oi->OperatorGamepad()->GetPOV(0);
 	// static bool povCenter = false;
 
-	// SmartDashboard::PutNumber("DriverPOVAngle",povAngle);
+	// SmartDashboard::PutNumber("OperatorPOVAngle",povAngle);
 
 	// if (povAngle == -1.0)	povCenter = true;
 
