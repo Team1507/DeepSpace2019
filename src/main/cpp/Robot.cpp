@@ -8,6 +8,7 @@ Drivetrain* Robot::m_drivetrain;
 Collector* Robot::m_collector;
 Carriage* Robot::m_carriage;
 Elevator *Robot::m_elevator;
+DriverFeedback* Robot::m_driverfeedback;
 
 void Write2Dashboard(void);
 
@@ -18,10 +19,11 @@ void Robot::RobotInit() {
 	std::cout<<"Version: " << __DATE__ <<"  "<<__TIME__<<std::endl<<std::endl; //Display Version info to Log file
     
     //******Subsystem Inits******
-    m_drivetrain = new Drivetrain();
-    m_collector  = new Collector();
-    m_carriage   = new Carriage();
-    m_elevator   = new Elevator();
+    m_drivetrain      = new Drivetrain();
+    m_collector       = new Collector();
+    m_carriage        = new Carriage();
+    m_elevator        = new Elevator();
+    m_driverfeedback  = new DriverFeedback();
     
     //OI **MUST** be after all subsystem Inits
     m_oi = new OI();
@@ -41,6 +43,7 @@ void Robot::RobotPeriodic()
     m_elevator->Periodic();
     m_collector->CollectorPeriodic();
     m_carriage->Periodic();
+    m_driverfeedback->DriverFeedbackPeriodic();
     Write2Dashboard();
 }
 

@@ -1,6 +1,5 @@
 #include "subsystems/Drivetrain.h"
 #include "Robot.h"
-#include "Subsystems\Drivetrain.h"
 #include <math.h>
 #include <iostream>
 #include "C:/Users/Admin/navx-mxp/cpp/include/AHRS.h"
@@ -8,6 +7,7 @@
 #include "GamepadMap.h"
 #include "commands/GrpDriveOffHAB.h"
 #include "commands/GrpDriveOnHAB.h"
+#include "subsystems/DriverFeedback.h"
 
 
 //Line Follower State Machine defines
@@ -238,7 +238,7 @@ bool Drivetrain::LineFollower(void)
 		case STATE_LINE_HUNT:
 			if((m_currLineState > 0) && (m_currLineState < 111))//if the line is found
 			{
-				std::cout<<"ENTERING FOLLOW STATE"<<std::endl;
+				std::cout<<"Line Found."<<std::endl;
 				driveState = STATE_LINE_FOLLOW; //follow it
 			}
 			return false;
@@ -249,6 +249,8 @@ bool Drivetrain::LineFollower(void)
 			{
 				driveState = STATE_LINE_HUNT; //go back to hunt
 				std::cout<<"Line lost, Leaving Follow."<<std::endl;
+				Robot::m_driverfeedback->UpdateLeftLEDs(BLUE_rgb);
+				Robot::m_driverfeedback->UpdateRightLEDs(BLUE_rgb);
 				return false;
 			}
 			else
@@ -260,33 +262,47 @@ bool Drivetrain::LineFollower(void)
 				{
 					//THIS IS THE NIGHTMARE OF ALL THE CRAZY CASES. if 101...panic
 					case 100:
-						 leftFollowThrottle  = BASE_THROTTLE - THROTTLE_ADJUSTMENT; //was 2*throttle_adjust
+						leftFollowThrottle  = BASE_THROTTLE - THROTTLE_ADJUSTMENT; //was 2*throttle_adjust
 						rightFollowThrottle  = BASE_THROTTLE + THROTTLE_ADJUSTMENT; //was 2*throttle_adjust
+						Robot::m_driverfeedback->UpdateLeftLEDs(RED_rgb);
+						Robot::m_driverfeedback->RightLEDsOff();
 						break;
 					case 110:
 						leftFollowThrottle  =  BASE_THROTTLE; //- THROTTLE_ADJUSTMENT;
 						rightFollowThrottle =  BASE_THROTTLE + THROTTLE_ADJUSTMENT;                  //SHOULD be a little less but we might not need to change it
+						Robot::m_driverfeedback->UpdateLeftLEDs(YELLOW_rgb);
+						Robot::m_driverfeedback->RightLEDsOff();
 						break;
 					case 10:
 						leftFollowThrottle = BASE_THROTTLE;
 						rightFollowThrottle = BASE_THROTTLE;
+						Robot::m_driverfeedback->UpdateLeftLEDs(GREEN_rgb);
+						Robot::m_driverfeedback->UpdateRightLEDs(GREEN_rgb);
 						break;
 					case 11:
 						leftFollowThrottle  = BASE_THROTTLE + THROTTLE_ADJUSTMENT;
 						rightFollowThrottle = BASE_THROTTLE; //- THROTTLE_ADJUSTMENT;               //SHOULD be a little less but we might not need to change it
+						Robot::m_driverfeedback->LeftLEDsOff();
+						Robot::m_driverfeedback->UpdateRightLEDs(YELLOW_rgb);
 						break;
 					case 1:
 						leftFollowThrottle  = BASE_THROTTLE + THROTTLE_ADJUSTMENT; //was 2*throttle_adjust
 						rightFollowThrottle = BASE_THROTTLE - THROTTLE_ADJUSTMENT; //was 2*throttle_adjust
+						Robot::m_driverfeedback->LeftLEDsOff();
+						Robot::m_driverfeedback->UpdateRightLEDs(RED_rgb);
 						break;
 					case 101:
 						driveState = STATE_LINE_HUNT;
 						std::cout<<"OH MY GOODNESS PANIC 101 POTENTIAL SENSOR FAILURE BLAME BUILD TEAM"<<std::endl;
+						Robot::m_driverfeedback->LeftLEDsOff();
+						Robot::m_driverfeedback->RightLEDsOff();
 						return false;
 						break;
 					default:
 						driveState = STATE_LINE_HUNT; //panic
 						std::cout<<"oh my an invalid state oh no"<<std::endl;
+						Robot::m_driverfeedback->LeftLEDsOff();
+						Robot::m_driverfeedback->RightLEDsOff();
 						return false;
 				}
 				frc::SmartDashboard::PutNumber("LEFT THROTTLE", leftFollowThrottle);

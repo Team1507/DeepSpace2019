@@ -9,6 +9,7 @@
 #include "subsystems/Collector.h"
 #include "subsystems/Carriage.h"
 #include "subsystems/Elevator.h"
+#include "subsystems/DriverFeedback.h"
 
 #include "AHRS.h"
 
@@ -25,6 +26,7 @@ class Robot : public frc::TimedRobot {
     static Collector *m_collector;
     static Carriage *m_carriage;
     static Elevator *m_elevator;
+    static DriverFeedback *m_driverfeedback;
 
     void RobotInit() override;
     void RobotPeriodic() override;
