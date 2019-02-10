@@ -10,6 +10,8 @@
 #define KPIDLOOPIDX     0
 #define KTIMEOUTMS      0
 
+#define MAX_SPEED 3660
+
 static int speedarray[5]={0,0,0,0,0}; //array of 5 to get ticks/100ms speed
 static int maxspeed = 0; //record of fastest speed here
 
@@ -22,8 +24,9 @@ Elevator::Elevator() : frc::Subsystem("Elevator")
 {
 	SmartDashboard::PutNumber("RequestedEncoderVal", 0);
 	elevatorTalonSRX = new TalonSRX(3); //itz 3 on DA can bus
+	//elevatorTalonSRX->ConfigSelectedFeedbackSensor(FeedbackDevice::CTRE_MagEncoder_Relative, 0 , KTIMEOUTMS);
+	//elevatorTalonSRX->
 }
-
 void Elevator::InitDefaultCommand() {}
 
 void Elevator::Periodic() {
@@ -47,23 +50,24 @@ void Elevator::Periodic() {
 	
 	//~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~Mr. B's elevator Speed Test~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 	//This code can be commented out once we do it, and the manual code above can be uncommented
-	
-	static double reqValue = 0;
+	//static double reqValue = 0;
+	double throttle = Robot::m_oi->OperatorGamepad()->GetRawAxis(GAMEPADMAP_AXIS_L_Y);
 	//static int speedarray[5]={0,0,0,0,0}; //array of 5 to get ticks/100ms speed
 	//static int maxspeed = 0; //record of fastest speed here
 		int idx = 0;
-		double povAngle = Robot::m_oi->DriverGamepad()->GetPOV(0);
-		static bool povCenter = false;
-	if (Robot::m_oi->DriverGamepad()->GetRawButton(1))
+		//double povAngle = Robot::m_oi->DriverGamepad()->GetPOV(0);
+		//static bool povCenter = false;
+	if (Robot::m_oi->OperatorGamepad()->GetRawButton(1))
 	{
-		SmartDashboard::PutNumber("DriverPOVAngle",povAngle);
-		reqValue = 28000;
-		elevatorTalonSRX->Set (ControlMode::Position, reqValue);
+		//SmartDashboard::PutNumber("DriverPOVAngle",povAngle);
+		//reqValue = 28000;
+		throttle = throttle * MAX_SPEED;
+		elevatorTalonSRX->Set (ControlMode::Velocity, throttle);
 
 		for (idx = 0; idx <= 3; idx++)
-			{ 
-				speedarray[idx] = speedarray[idx+1];
-			}
+		{ 
+			speedarray[idx] = speedarray[idx+1];
+		}
 		speedarray[4] = (-1)*GetElevatorEncoder();
 		if (abs(speedarray[4]) - abs(speedarray[0]) > maxspeed) {maxspeed = abs(speedarray[4]) - abs(speedarray[0]);}
 
@@ -71,6 +75,7 @@ void Elevator::Periodic() {
 		SmartDashboard::PutNumber("Speed Array 4",speedarray[4]);
 	}
 	//~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~END OF MR.B'S CODE~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
 
 
 
@@ -126,7 +131,7 @@ void Elevator::TalonSRXinit(void)
 
     elevatorTalonSRX->SetNeutralMode(NeutralMode::Brake);
 
-    elevatorTalonSRX->ConfigSelectedFeedbackSensor(FeedbackDevice::QuadEncoder,KPIDLOOPIDX, KTIMEOUTMS);
+    elevatorTalonSRX->ConfigSelectedFeedbackSensor(FeedbackDevice::CTRE_MagEncoder_Relative, 0, KTIMEOUTMS);
 
 	//int absolutePosition = elevatorTalonSRX->GetSelectedSensorPosition(0) & 0xFFF;
 	elevatorTalonSRX->SetSelectedSensorPosition(0, KPIDLOOPIDX, KTIMEOUTMS);
@@ -136,14 +141,14 @@ void Elevator::TalonSRXinit(void)
 	//set the peak and nominal outputs, 12V means full
 	elevatorTalonSRX->ConfigNominalOutputForward(0, KTIMEOUTMS);
 	elevatorTalonSRX->ConfigNominalOutputReverse(0, KTIMEOUTMS);
-	elevatorTalonSRX->ConfigPeakOutputForward(0.8, KTIMEOUTMS);
-	elevatorTalonSRX->ConfigPeakOutputReverse(-0.8, KTIMEOUTMS);
+	elevatorTalonSRX->ConfigPeakOutputForward(1.0, KTIMEOUTMS);
+	elevatorTalonSRX->ConfigPeakOutputReverse(-1.0, KTIMEOUTMS);
 
 	//set closed loop gains in slot0
-	elevatorTalonSRX->Config_kF(KPIDLOOPIDX, 0.0, KTIMEOUTMS);
-	elevatorTalonSRX->Config_kP(KPIDLOOPIDX, 0.3, KTIMEOUTMS);
-	elevatorTalonSRX->Config_kI(KPIDLOOPIDX, 0.0, KTIMEOUTMS);
-	elevatorTalonSRX->Config_kD(KPIDLOOPIDX, 0.0, KTIMEOUTMS);
+	// elevatorTalonSRX->Config_kF(KPIDLOOPIDX, 0.0, KTIMEOUTMS);
+	// elevatorTalonSRX->Config_kP(KPIDLOOPIDX, 0.3, KTIMEOUTMS);
+	// elevatorTalonSRX->Config_kI(KPIDLOOPIDX, 0.0, KTIMEOUTMS);
+	// elevatorTalonSRX->Config_kD(KPIDLOOPIDX, 0.0, KTIMEOUTMS);
 
     elevatorTalonSRX->SetInverted(false);
 }

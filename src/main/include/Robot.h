@@ -10,7 +10,7 @@
 #include "subsystems/Carriage.h"
 #include "subsystems/Elevator.h"
 #include "subsystems/DriverFeedback.h"
-
+#include <cameraserver/CameraServer.h>
 #include "AHRS.h"
 
 #include <iostream>	

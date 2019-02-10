@@ -2,6 +2,9 @@
 #include <frc/commands/Scheduler.h>
 #include <frc/smartdashboard/SmartDashboard.h>
 #include "GamepadMap.h"
+#include <cameraserver/CameraServer.h>
+//#include <CameraServer.h> //new
+
 OI* Robot::m_oi;
 
 Drivetrain* Robot::m_drivetrain;
@@ -35,6 +38,16 @@ void Robot::RobotInit() {
 
     m_drivetrain->LineSensorsRetract();
     m_elevator->TalonSRXinit();
+
+    //CAMERA  
+    cs::UsbCamera camera = frc::CameraServer::GetInstance()->StartAutomaticCapture();
+    camera.SetResolution(320, 240); //was 160,120
+    //camera.SetVideoMode(cs::VideoMode::kMJPEG, 320, 240, 8); //kGray, kRGB565
+    camera.SetFPS(15);
+    camera.SetBrightness(0);       //100-most bright //0- most dark //was 20
+    //camera.SetVideoMode() //stinky line don't worry about it
+    //camera.SetWhiteBalanceManual(cs::VideoCamera::kFixedFluorescent1);
+    camera.SetExposureManual(38);   //0- Mbps 0.73, darker //100- Mbps .31, lighter
 }
 
 void Robot::RobotPeriodic() 
