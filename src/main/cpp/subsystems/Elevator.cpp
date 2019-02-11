@@ -10,7 +10,7 @@
 #define KPIDLOOPIDX     0
 #define KTIMEOUTMS      0
 
-#define MAX_SPEED 3660
+#define MAX_SPEED 4720 //was 3660
 
 static int speedarray[5]={0,0,0,0,0}; //array of 5 to get ticks/100ms speed
 static int maxspeed = 0; //record of fastest speed here
@@ -19,15 +19,19 @@ const int Elevator::TOP_VALUE 		= 30000;
 const int Elevator::BOT_VALUE       = 0;
 const int Elevator::CARGO_VALUE 	= 15000;
 const int Elevator::ROCKET_VALUE 	= 20000;
+const int Elevator::CRUISE_VELOCITY = 4500;  //WAS 4000
+const int Elevator::ACCELERATION 	= 1500; //WAS 2000
 
 Elevator::Elevator() : frc::Subsystem("Elevator")
 {
-	SmartDashboard::PutNumber("RequestedEncoderVal", 0);
+	//SmartDashboard::PutNumber("RequestedEncoderVal", 0);
 	elevatorTalonSRX = new TalonSRX(3); //itz 3 on DA can bus
 	//elevatorTalonSRX->ConfigSelectedFeedbackSensor(FeedbackDevice::CTRE_MagEncoder_Relative, 0 , KTIMEOUTMS);
-	//elevatorTalonSRX->
+	
 }
-void Elevator::InitDefaultCommand() {}
+void Elevator::InitDefaultCommand() {
+	
+}
 
 void Elevator::Periodic() {
 	frc::SmartDashboard::PutBoolean("Limit Switch Top"   ,GetElevatorLimitSwitchTop());
@@ -37,10 +41,14 @@ void Elevator::Periodic() {
 
     //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~Manual Elevator Control~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 	
-	// double yL = Robot::m_oi->OperatorGamepad()->GetRawAxis(GAMEPADMAP_AXIS_L_Y);
-	// if(fabs(yL) <= DEADZONE_CONST) yL = 0;	//Deadzone code
-	// elevatorTalonSRX->Set(ControlMode::PercentOutput, yL *(-1.0));
+	double yL = Robot::m_oi->OperatorGamepad()->GetRawAxis(GAMEPADMAP_AXIS_L_Y);
+	if(fabs(yL) <= DEADZONE_CONST) yL = 0;	//Deadzone code
 	//Position mode - button just pressed
+    if(Robot::m_oi->OperatorGamepad()->GetRawButton(1))
+    { 
+        elevatorTalonSRX->Set(ControlMode::PercentOutput, yL *(-1.0));
+    } 
+   
 	//double reqValue = SmartDashboard::GetNumber("RequestedEncoderVal", 0);
 	
 	frc::SmartDashboard::PutNumber("ElevatorEncoderVal", GetElevatorEncoder()*(-1.0));
@@ -50,7 +58,7 @@ void Elevator::Periodic() {
 	
 	//~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~Mr. B's elevator Speed Test~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 	//This code can be commented out once we do it, and the manual code above can be uncommented
-	//static double reqValue = 0;
+	static double reqValue = 0;
 	double throttle = Robot::m_oi->OperatorGamepad()->GetRawAxis(GAMEPADMAP_AXIS_L_Y);
 	//static int speedarray[5]={0,0,0,0,0}; //array of 5 to get ticks/100ms speed
 	//static int maxspeed = 0; //record of fastest speed here
@@ -62,7 +70,10 @@ void Elevator::Periodic() {
 		//SmartDashboard::PutNumber("DriverPOVAngle",povAngle);
 		//reqValue = 28000;
 		throttle = throttle * MAX_SPEED;
-		elevatorTalonSRX->Set (ControlMode::Velocity, throttle);
+		//elevatorTalonSRX->Set (ControlMode::Velocity, throttle);
+		elevatorTalonSRX->Set (ControlMode::MotionMagic, throttle);
+
+		
 
 		for (idx = 0; idx <= 3; idx++)
 		{ 
@@ -80,37 +91,37 @@ void Elevator::Periodic() {
 
 
 	// //~~~~~~~~~~~~~~~~~~~~~~~~~~~~Operator Gamepad POV for elevator control~~~~~~~~~~~~~~~~~~~~~~~
-	// //0 = Up, 90 = Right, 180 = Down, 270 = Left
-	// double povAngle = Robot::m_oi->OperatorGamepad()->GetPOV(0);
-	// static bool povCenter = false;
+	//0 = Up, 90 = Right, 180 = Down, 270 = Left
+    double povAngle = Robot::m_oi->OperatorGamepad()->GetPOV(0);
+	static bool povCenter = false;
 
-	// SmartDashboard::PutNumber("OperatorPOVAngle",povAngle);
+	 SmartDashboard::PutNumber("OperatorPOVAngle",povAngle);
 
-	// if (povAngle == -1.0)	povCenter = true;
+	 if (povAngle == -1.0)	povCenter = true;
 
-	// if ((povAngle == 0.0) && povCenter ){
-	// 	std::cout<<"Top"<<std::endl;
-	// 	reqValue = 30000;
-	// 	povCenter = false;
-	// }
+	 if ((povAngle == 0.0) && povCenter ){
+	 	std::cout<<"Top"<<std::endl;
+	 	reqValue = TOP_VALUE;
+	 	povCenter = false;
+	 }
 
-	// if ((povAngle == 90.0) && povCenter ){
-	// 	std::cout<<"Middle High"<<std::endl;
-	// 	reqValue = 20000;
-	// 	povCenter = false;
-	// }
-	// if ((povAngle == 180.0) && povCenter ){
-	// 	std::cout<<"Bottom"<<std::endl;
-	// 	reqValue = 0;
-	// 	povCenter = false;
-	// }
-	// if ((povAngle == 270.0) && povCenter ){
-	// 	std::cout<<"Middle Low"<<std::endl;
-	// 	reqValue = 15000;
-	// 	povCenter = false;
-	// }
+	 if ((povAngle == 90.0) && povCenter ){
+	 	std::cout<<"Rocket Ship"<<std::endl;
+	 	reqValue = ROCKET_VALUE;
+	 	povCenter = false;
+	 }
+	 if ((povAngle == 180.0) && povCenter ){
+	 	std::cout<<"Bottom"<<std::endl;
+	 	reqValue = BOT_VALUE;
+	 	povCenter = false;
+	 }
+     if ((povAngle == 270.0) && povCenter ){
+	 	std::cout<<"Cargo Ship"<<std::endl;
+	 	reqValue = CARGO_VALUE;
+	 	povCenter = false;
+	 }
 
-	// //elevatorTalonSRX->Set (ControlMode::Position, reqValue); 
+	elevatorTalonSRX->Set (ControlMode::MotionMagic, reqValue);
 
 
 }
@@ -118,6 +129,10 @@ void Elevator::Periodic() {
 void Elevator::TalonSRXinit(void)
 {
     //int KTIMEOUTMS = 0;
+
+    //Set acceleration and vcruise velocity
+	elevatorTalonSRX->ConfigMotionCruiseVelocity(CRUISE_VELOCITY, KTIMEOUTMS);
+	elevatorTalonSRX->ConfigMotionAcceleration(ACCELERATION, KTIMEOUTMS); 
 
     elevatorTalonSRX->ConfigForwardLimitSwitchSource(
 		LimitSwitchSource::LimitSwitchSource_FeedbackConnector,

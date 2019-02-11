@@ -30,7 +30,9 @@ public:
 	const static int BOT_VALUE;
 	const static int TOP_VALUE;     
 	const static int CARGO_VALUE; 	
-	const static int ROCKET_VALUE; 	
+	const static int ROCKET_VALUE;
+	const static int CRUISE_VELOCITY;
+	const static int ACCELERATION; 	
 	
 };
 
