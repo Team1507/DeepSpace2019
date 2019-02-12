@@ -19,7 +19,7 @@ OI::OI() {
     frc::SmartDashboard::PutData("GrpTest2 Command", new GrpTest2() );
     frc::SmartDashboard::PutData("GrpDriveOffHAB Command", new GrpDriveOffHAB() );
     frc::SmartDashboard::PutData("GrpDriveOnHAB Command", new GrpDriveOnHAB() );
-	frc::SmartDashboard::PutData("ZeroEncoder", new CmdDriveClearAll() );
+	  frc::SmartDashboard::PutData("ZeroEncoder", new CmdDriveClearAll() );
     frc::SmartDashboard::PutData("CmdElevatorGo2Top", new CmdElevatorGo2Top() );
     frc::SmartDashboard::PutData("CmdElevatorGo2Bot", new CmdElevatorGo2Bot() );
     frc::SmartDashboard::PutData("CmdElevatorGo2RocketMid", new CmdElevatorGo2RocketMid() );

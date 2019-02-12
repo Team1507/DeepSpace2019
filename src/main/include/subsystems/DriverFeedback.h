@@ -31,4 +31,6 @@ class DriverFeedback : public frc::Subsystem {
     void UpdateRightLEDs(float,float,float);
     void LeftLEDsOff(void);
     void RightLEDsOff(void);
+    void RumbleOn(void);
+    void RumbleOff(void);
 };

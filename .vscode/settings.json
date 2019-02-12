@@ -15,5 +15,6 @@
   "files.associations": {
     "*.inc": "cpp",
     "iostream": "cpp"
-  }
+  },
+  "C_Cpp.configurationWarnings": "Disabled"
 }

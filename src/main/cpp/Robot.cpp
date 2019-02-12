@@ -63,6 +63,8 @@ void Robot::RobotPeriodic()
 void Robot::DisabledInit() 
 {
     std::cout<<"Disabled Init"<<std::endl;
+    m_driverfeedback->RumbleOff();
+    
 }
 
 void Robot::DisabledPeriodic() { frc::Scheduler::GetInstance()->Run(); }
@@ -88,6 +90,7 @@ void Robot::AutonomousPeriodic() { frc::Scheduler::GetInstance()->Run(); }
 
 void Robot::TeleopInit() {
   std::cout<<"Teleop Init"<<std::endl;
+  m_driverfeedback->RumbleOn();
   if (m_autonomousCommand != nullptr) {
     m_autonomousCommand->Cancel();
     m_autonomousCommand = nullptr;
