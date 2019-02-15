@@ -68,6 +68,7 @@ void Carriage::CloseLatch(void)
 {
 	carriageHatchLatch->Set(DoubleSolenoid::kReverse);
 	m_OpenLatch = false;
+	Robot::m_driverfeedback->RumbleOn();
 }
 void Carriage::SetLatch(int position)
 {

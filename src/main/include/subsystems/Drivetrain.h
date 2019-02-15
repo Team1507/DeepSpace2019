@@ -9,25 +9,28 @@
 
 class Drivetrain : public frc::Subsystem {
  private:
-  //Object instantiation
-  TalonSRX* leftDriveTalon;
-  VictorSPX* leftDriveVictor;
-  TalonSRX* rightDriveTalon;
-  VictorSPX* rightDriveVictor;
-  frc::DoubleSolenoid     *gearShift;
-  frc::DoubleSolenoid     *stilts;
-  frc::DigitalInput *wallPhotoeye; //Was in the .cpp, Ben L moved it because it looked funny there
-  AHRS *ahrs;	    //NavX
-  //Line Sensor Pins
-  frc::AnalogInput* analog0;
-  frc::AnalogInput* analog1; 
-  frc::AnalogInput* analog2; 
-  //variables
-  unsigned char m_currLineState;
-  bool lineSensorsDeployed;
-
+    //Object instantiation
+    TalonSRX* leftDriveTalon;
+    VictorSPX* leftDriveVictor;
+    TalonSRX* rightDriveTalon;
+    VictorSPX* rightDriveVictor;
+    frc::DoubleSolenoid     *gearShift;
+    frc::DoubleSolenoid     *stilts;
+    frc::DigitalInput *wallPhotoeye; //Was in the .cpp, Ben L moved it because it looked funny there
+    AHRS *ahrs;	    //NavX
+    //Line Sensor Pins
+    frc::AnalogInput* analog0;
+    frc::AnalogInput* analog1; 
+    frc::AnalogInput* analog2; 
+    //variables
+  
+    bool lineSensorsDeployed;
+    unsigned char m_currLineState;
 
  public:    
+
+    
+
     const static int LO_GEAR;
     const static int HI_GEAR;
     const static int DEPLOY_STILTS;
@@ -52,6 +55,8 @@ class Drivetrain : public frc::Subsystem {
     void   DriveWithGamepad( void );
     void   Drive( double left, double right );
     void   Stop( void );
+    //Custom Arcade drive Function
+    void   CustomArcadeDrive(double leftJoyY, double rightJoyX);
     //NavX
     bool   IsGyroConnected(void);
     double GetGyroYaw(void);            //yaw: Relative -180 to +180
@@ -73,4 +78,6 @@ class Drivetrain : public frc::Subsystem {
     void RetractStilts(void);
     void SetStilts(int stilts);
     bool AreStiltsDeployed(void);
+    //line state
+    unsigned char lineStateReturn(void);
 };

@@ -74,6 +74,7 @@ void Collector::CollectorPeriodic(void)
 bool Collector::IsPhotoeyeDetected(void)
 {
 	return collectorPhotoeye->Get();
+	Robot::m_driverfeedback->RumbleOn();
 }
 //********CAGE***********
 void Collector::DeployCage(void)

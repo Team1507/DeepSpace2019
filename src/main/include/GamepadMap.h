@@ -1,5 +1,5 @@
 // GamepadMap.h
-//  Mapping of Gamepad axis/buttons
+// Mapping of Gamepad axis/buttons
 //
 //  Author:     K. Sielski FRC Team 1507 - Warlocks (Lockport,NY)
 //  Date:       10/14/2018

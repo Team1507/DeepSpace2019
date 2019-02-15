@@ -34,6 +34,8 @@ Drivetrain::Drivetrain() : Subsystem("Drivetrain")
  	rightDriveTalon  = new TalonSRX(9);
  	rightDriveVictor = new VictorSPX(10);
 
+	//DifferentialDrive
+
 	gearShift         = new frc::DoubleSolenoid(1, 0, 1);	
 	stilts            = new frc::DoubleSolenoid(1, 0, 1);
 	wallPhotoeye      = new frc::DigitalInput(6);
@@ -125,7 +127,7 @@ bool Drivetrain::IsPhotoeyeDetected(void)
 void Drivetrain::DriveWithGamepad( void )
 {
 	//return;
-	const double deadband = 0.08;
+	const double deadzone = 0.08;
 	
 	double yL = Robot::m_oi->DriverGamepad()->GetRawAxis(GAMEPADMAP_AXIS_L_Y);
 	double xL = Robot::m_oi->DriverGamepad()->GetRawAxis(GAMEPADMAP_AXIS_L_X);
@@ -134,10 +136,56 @@ void Drivetrain::DriveWithGamepad( void )
 	double tL = Robot::m_oi->DriverGamepad()->GetRawAxis(GAMEPADMAP_AXIS_L_TRIG);
 	double tR = Robot::m_oi->DriverGamepad()->GetRawAxis(GAMEPADMAP_AXIS_R_TRIG);
 	bool   bL = Robot::m_oi->DriverGamepad()->GetRawButton(GAMEPADMAP_BUTTON_LBUMP);
-	if (fabs(yL)<= deadband) yL = 0;
-	if (fabs(xL)<= deadband) xL = 0;
-	if (fabs(yR)<= deadband) yR = 0;
-	if (fabs(xR)<= deadband) xR = 0;
+	if (fabs(yL)<= deadzone) yL = 0;
+	if (fabs(xL)<= deadzone) xL = 0;
+	if (fabs(yR)<= deadzone) yR = 0;
+	if (fabs(xR)<= deadzone) xR = 0;
+
+	// drive str8 testing
+
+		//static bool driveStr8_flag = false;
+		//static double currHeading;
+
+	//calculus (-2 to invert drive)
+	//double driveStr8_power = (left + right)/-2.0;
+//
+//	//if start held, drive str8
+//	//if(Robot::m_oi->OperatorGamepad()->GetRawButton(8))
+//	{
+//		if(driveStr8_flag)
+//		{
+//			//if drivestr8_flag = true
+//			double errorAngle = Robot::drivetrain->GetGyroAngle() - currHeading;
+//			double kp = 0.03;
+
+//			Robot::drivetrain->Drive(driveStr8_power - errorAngle*kp , driveStr8_power + errorAngle*kp);
+//		}
+//		else
+//		{
+//			//if drivestr8_flag = false
+//			driveStr8_flag = true;
+//			currHeading = Robot::drivetrain->GetGyroAngle();
+//			std::cout<<"DriveStr8"<<std::endl;
+//		}
+//
+//	}
+//	else{
+//		//clear flag when not drive str8
+//		driveStr8_flag = false;
+//		//Finally, write to talons
+//		//differentialDrive->ArcadeDrive( (0.9)*left,  (0.9)*right,  true);  //put a limiter for n00bs
+//		//Drive(left, right);
+//		if((!Robot::m_oi->OperatorGamepad()->GetRawButton(8))
+//		{
+//			differentialDrive->ArcadeDrive( (0.6)*left,  (0.6)*right,  true);  //changes left/right drive to 1/2 power for manuvers  //was .5,.5
+//		}
+//		else
+//		{
+//			differentialDrive->ArcadeDrive( (0.9)*left,  (0.9)*right,  true);  //put a limiter for n00bs
+//		}
+//	}
+//
+
 
 	
 	//*************Extend/retract stilts*************
@@ -150,7 +198,7 @@ void Drivetrain::DriveWithGamepad( void )
 	if( Robot::m_oi->DriverGamepad()->GetRawAxis(2) >= .5 && Robot::m_oi->DriverGamepad()->GetRawButton(4))GrpDriveOnHAB(); //HEY check if this is right
 	if( Robot::m_oi->DriverGamepad()->GetRawAxis(2) >= .5 && Robot::m_oi->DriverGamepad()->GetRawButton(1))GrpDriveOffHAB();
 
-
+	//*********Line Follower Code*************
 	if(bL) //if LEFT bumper pushed, Enable Line Follow if line is detected 
 	{
 		//If Sensors not deployed, deploy them
@@ -170,6 +218,7 @@ void Drivetrain::DriveWithGamepad( void )
 			LineSensorsRetract();
 		//Use Gamepad to drive
 		//differentialDrive->ArcadeDrive(yL,xR, true);
+		//differentialDrive->ArcadeDrive(,xR, true);
 		//HEY REPLACE WITH THE NEW ARCADE DRIVE LINE
 	}
 		
@@ -190,7 +239,18 @@ void Drivetrain::Stop( void )
 	rightDriveTalon->Set(ControlMode::PercentOutput, 0);
   	std::cout << "DRIVE MOTORS STOPPED" << std::endl;
 }
-
+//********************Custom Arcade Drive************************
+void CustomArcadeDrive(double leftJoyY, double rightJoyX)
+{
+	// double leftThrottle, rightThrottle;
+	// leftThrottle  = leftJoyY + rightJoyX;
+	// rightThrottle =	leftJoyY + (-1)rightJoyX;
+	// if(leftThrottle > 1)   leftThrottle  =  1;
+	// if(leftThrottle < -1)  leftThrottle  = -1;
+	// if(rightThrottle > 1)  rightThrottle =  1;
+	// if(rightThrottle < -1) rightThrottle = -1;
+	// Drive(leftThrottle, rightThrottle);
+}
 
 //**************** AHRS (NavX) *********************
 bool Drivetrain::IsGyroConnected(void)
@@ -239,6 +299,7 @@ bool Drivetrain::LineFollower(void)
 			if((m_currLineState > 0) && (m_currLineState < 111))//if the line is found
 			{
 				std::cout<<"Line Found."<<std::endl;
+				Robot::m_driverfeedback->RumbleOn();
 				driveState = STATE_LINE_FOLLOW; //follow it
 			}
 			return false;
@@ -251,6 +312,7 @@ bool Drivetrain::LineFollower(void)
 				std::cout<<"Line lost, Leaving Follow."<<std::endl;
 				Robot::m_driverfeedback->UpdateLeftLEDs(BLUE_rgb);
 				Robot::m_driverfeedback->UpdateRightLEDs(BLUE_rgb);
+				Robot::m_driverfeedback->RumbleOn();
 				return false;
 			}
 			else
@@ -391,4 +453,7 @@ bool Drivetrain::AreStiltsDeployed(void)
 	else
 		return false;
   return false;
+}
+unsigned char Drivetrain::lineStateReturn(void){
+	return m_currLineState;
 }

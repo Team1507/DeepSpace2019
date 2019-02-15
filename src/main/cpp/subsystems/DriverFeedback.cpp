@@ -5,7 +5,6 @@
 #include "subsystems/DriverFeedback.h"
 #include <frc/GenericHID.h>
 
-#define FULL_RUMBLE 1.0
 
 DriverFeedback::DriverFeedback() : Subsystem("DriverFeedback") {
     l_canifier = new CANifier(5);
@@ -68,10 +67,9 @@ void DriverFeedback::RightLEDsOff(){
 	r_canifier->SetLEDOutput(0, CANifier::LEDChannel::LEDChannelC);  
 
 }
-void DriverFeedback::RumbleOn(void){
-	//std::shared_ptr<frc::Joystick> gamepad = Robot::oi->getDriverGamepad();
-
-
+void DriverFeedback::RumbleOn(void)
+{
+	
 	Robot::m_oi->DriverGamepad()->SetRumble(frc::GenericHID::kLeftRumble, 0.4);
 	Robot::m_oi->DriverGamepad()->SetRumble(frc::GenericHID::kRightRumble, 0.4);
 
@@ -79,7 +77,8 @@ void DriverFeedback::RumbleOn(void){
 	Robot::m_oi->OperatorGamepad()->SetRumble(frc::GenericHID::kRightRumble, 0.4);
 
 }
-void DriverFeedback::RumbleOff(void){
+void DriverFeedback::RumbleOff(void)
+{
 	Robot::m_oi->DriverGamepad()->SetRumble(frc::GenericHID::kLeftRumble, 0.0);
 	Robot::m_oi->DriverGamepad()->SetRumble(frc::GenericHID::kRightRumble, 0.0);
 
