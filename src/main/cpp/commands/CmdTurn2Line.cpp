@@ -17,7 +17,7 @@ void CmdTurn2Line::Initialize() {
     if(m_isLeftTurn) Robot::m_drivetrain->Drive(m_throttle *(-1.0), m_throttle); //drives the right side positive
     else Robot::m_drivetrain->Drive(m_throttle, m_throttle*(-1.0)); //drives the left side positive
 
-
+    Robot::m_drivetrain->LineSensorsDeploy();
     
 }
 
@@ -38,7 +38,8 @@ bool CmdTurn2Line::IsFinished() {
 }
 
 void CmdTurn2Line::End() {
-    Robot::m_drivetrain->Drive(0,0); 
+    Robot::m_drivetrain->Drive(0,0);
+    Robot::m_drivetrain->LineSensorsRetract();
 }
 
 
