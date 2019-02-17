@@ -5,9 +5,8 @@
 #include "C:/Users/Admin/navx-mxp/cpp/include/AHRS.h"
 #include "OI.h"
 #include "GamepadMap.h"
-#include "commands/GrpDriveOffHAB.h"
-#include "commands/GrpDriveOnHAB.h"
 #include "subsystems/DriverFeedback.h"
+//#include "frc/wpilib/RobotDriveBase.h"
 
 
 //Line Follower State Machine defines
@@ -17,12 +16,17 @@
 #define THROTTLE_ADJUSTMENT .08
 #define THROTTLE_MULTIPLIER	1.0
 
+#define LIMIT 1.0
+
 //Drivetrain Constants
 const int Drivetrain::LO_GEAR = 0;
 const int Drivetrain::HI_GEAR = 1;
 const int Drivetrain::RETRACT_STILTS = 0;
 const int Drivetrain::DEPLOY_STILTS  = 1;
 const int Drivetrain::ENC_TICKS_PER_INCH = 42;
+
+//Local Prototypes
+double Limit1507 (double x);
 
 
 Drivetrain::Drivetrain() : Subsystem("Drivetrain") 
@@ -34,12 +38,8 @@ Drivetrain::Drivetrain() : Subsystem("Drivetrain")
  	rightDriveTalon  = new TalonSRX(9);
  	rightDriveVictor = new VictorSPX(10);
 
-	//DifferentialDrive
-
 	gearShift         = new frc::DoubleSolenoid(1, 0, 1);	
-	stilts            = new frc::DoubleSolenoid(1, 0, 1);
-	wallPhotoeye      = new frc::DigitalInput(6);
-    
+	
     ahrs  	= new AHRS(SPI::Port::kMXP);
 	
     analog0 = new frc::AnalogInput(0);
@@ -49,19 +49,32 @@ Drivetrain::Drivetrain() : Subsystem("Drivetrain")
 
 void Drivetrain::Init(void)
 {
+	leftDriveTalon->ConfigFactoryDefault();
+	rightDriveTalon->ConfigFactoryDefault();
+	
 	leftDriveTalon->SetNeutralMode(NeutralMode::Brake);
   	rightDriveTalon->SetNeutralMode(NeutralMode::Brake);
+
+	leftDriveVictor->SetNeutralMode(NeutralMode::Brake);
+  	rightDriveVictor->SetNeutralMode(NeutralMode::Brake);
 
   	//encoder code
   	leftDriveTalon->ConfigSelectedFeedbackSensor(FeedbackDevice::QuadEncoder,0,0);
   	rightDriveTalon->ConfigSelectedFeedbackSensor(FeedbackDevice::QuadEncoder,0,0);
 	
+	leftDriveTalon->SetInverted(false);
+	rightDriveTalon->SetInverted(true);
+
+	leftDriveVictor->SetInverted(false);
+	rightDriveVictor->SetInverted(true);
+
 	leftDriveVictor->Follow(*leftDriveTalon);
   	rightDriveVictor->Follow(*rightDriveTalon);  
 }
 
 void Drivetrain::InitDefaultCommand() 
 {
+	
 }
 
 void Drivetrain::DrivetrainPeriodic(void)
@@ -98,32 +111,28 @@ void Drivetrain::DrivetrainPeriodic(void)
 
 	//Write Gyro and photoeye state to dashboard
 	frc::SmartDashboard::PutNumber("GyroAngle", GetGyroAngle());
-	frc::SmartDashboard::PutNumber("wallPhotoeye", wallPhotoeye->Get());
 
-	//*************
+
+	
 
 }
 
 int	Drivetrain::GetLeftEncoder(void)
 {
-	return 0;//HEY DUMMY PUT THE ENCODER STUFF HERE
+	return leftDriveTalon->GetSensorCollection().GetQuadraturePosition();
 }
 
 int Drivetrain::GetRightEncoder(void)
 {
-	return 0;//HEY DUMMY PUT THE ENCODER STUFF HERE
+	return rightDriveTalon->GetSensorCollection().GetQuadraturePosition();
 }
 
 void Drivetrain::ResetEncoders(void)
 {
-	// leftEncoder->Reset();
-	// rightEncoder->Reset();
+	leftDriveTalon->SetSelectedSensorPosition(0,0,0);
+	rightDriveTalon->SetSelectedSensorPosition(0,0,0);
 }
 
-bool Drivetrain::IsPhotoeyeDetected(void)
-{
-	return wallPhotoeye->Get();
-}
 void Drivetrain::DriveWithGamepad( void )
 {
 	//return;
@@ -135,69 +144,26 @@ void Drivetrain::DriveWithGamepad( void )
 	double xR = -(Robot::m_oi->DriverGamepad()->GetRawAxis(GAMEPADMAP_AXIS_R_X)); //ben did this to fix L being R and R being L
 	double tL = Robot::m_oi->DriverGamepad()->GetRawAxis(GAMEPADMAP_AXIS_L_TRIG);
 	double tR = Robot::m_oi->DriverGamepad()->GetRawAxis(GAMEPADMAP_AXIS_R_TRIG);
-	bool   bL = Robot::m_oi->DriverGamepad()->GetRawButton(GAMEPADMAP_BUTTON_LBUMP);
+//	bool   bL = Robot::m_oi->DriverGamepad()->GetRawButton(GAMEPADMAP_BUTTON_LBUMP);
+	bool   bL = false;
 	if (fabs(yL)<= deadzone) yL = 0;
 	if (fabs(xL)<= deadzone) xL = 0;
 	if (fabs(yR)<= deadzone) yR = 0;
 	if (fabs(xR)<= deadzone) xR = 0;
 
-	// drive str8 testing
-
-		//static bool driveStr8_flag = false;
-		//static double currHeading;
-
-	//calculus (-2 to invert drive)
-	//double driveStr8_power = (left + right)/-2.0;
-//
-//	//if start held, drive str8
-//	//if(Robot::m_oi->OperatorGamepad()->GetRawButton(8))
-//	{
-//		if(driveStr8_flag)
-//		{
-//			//if drivestr8_flag = true
-//			double errorAngle = Robot::drivetrain->GetGyroAngle() - currHeading;
-//			double kp = 0.03;
-
-//			Robot::drivetrain->Drive(driveStr8_power - errorAngle*kp , driveStr8_power + errorAngle*kp);
-//		}
-//		else
-//		{
-//			//if drivestr8_flag = false
-//			driveStr8_flag = true;
-//			currHeading = Robot::drivetrain->GetGyroAngle();
-//			std::cout<<"DriveStr8"<<std::endl;
-//		}
-//
-//	}
-//	else{
-//		//clear flag when not drive str8
-//		driveStr8_flag = false;
-//		//Finally, write to talons
-//		//differentialDrive->ArcadeDrive( (0.9)*left,  (0.9)*right,  true);  //put a limiter for n00bs
-//		//Drive(left, right);
-//		if((!Robot::m_oi->OperatorGamepad()->GetRawButton(8))
-//		{
-//			differentialDrive->ArcadeDrive( (0.6)*left,  (0.6)*right,  true);  //changes left/right drive to 1/2 power for manuvers  //was .5,.5
-//		}
-//		else
-//		{
-//			differentialDrive->ArcadeDrive( (0.9)*left,  (0.9)*right,  true);  //put a limiter for n00bs
-//		}
-//	}
-//
-
+	//*******Gear Shift********
+	if (Robot::m_oi->DriverGamepad()->GetRawButtonPressed(GAMEPADMAP_BUTTON_RBUMP))
+	{
+		SetHighGear();
+		std::cout<<"HighGear"<<std::endl;
+	}
+	if (tR > 0.5)
+	{
+		SetLowGear();
+		std::cout<<"LowGear"<<std::endl;
+	}
 
 	
-	//*************Extend/retract stilts*************
-	double povAngle = Robot::m_oi->DriverGamepad()->GetPOV(0);
-	SmartDashboard::PutNumber("DriverPOVAngle",povAngle);
-	if( Robot::m_oi->DriverGamepad()->GetRawAxis(2) >= .5 && povAngle == 0.0)SetStilts(RETRACT_STILTS);
-	if( Robot::m_oi->DriverGamepad()->GetRawAxis(2) >= .5 && povAngle == 270.0)SetStilts(DEPLOY_STILTS);
-
-	//**********Auto Climb and Descend**********
-	if( Robot::m_oi->DriverGamepad()->GetRawAxis(2) >= .5 && Robot::m_oi->DriverGamepad()->GetRawButton(4))GrpDriveOnHAB(); //HEY check if this is right
-	if( Robot::m_oi->DriverGamepad()->GetRawAxis(2) >= .5 && Robot::m_oi->DriverGamepad()->GetRawButton(1))GrpDriveOffHAB();
-
 	//*********Line Follower Code*************
 	if(bL) //if LEFT bumper pushed, Enable Line Follow if line is detected 
 	{
@@ -217,6 +183,7 @@ void Drivetrain::DriveWithGamepad( void )
 		if( lineSensorsDeployed )
 			LineSensorsRetract();
 		//Use Gamepad to drive
+		Drive(yL, yR);
 		//differentialDrive->ArcadeDrive(yL,xR, true);
 		//differentialDrive->ArcadeDrive(,xR, true);
 		//HEY REPLACE WITH THE NEW ARCADE DRIVE LINE
@@ -239,9 +206,63 @@ void Drivetrain::Stop( void )
 	rightDriveTalon->Set(ControlMode::PercentOutput, 0);
   	std::cout << "DRIVE MOTORS STOPPED" << std::endl;
 }
-//********************Custom Arcade Drive************************
-void CustomArcadeDrive(double leftJoyY, double rightJoyX)
+double Drivetrain::GetRightMotor(void)
 {
+	return rightDriveTalon->GetMotorOutputPercent();
+}
+double Drivetrain::GetLeftMotor(void)
+{
+	return leftDriveTalon->GetMotorOutputPercent();
+}
+
+//********************Custom Arcade Drive************************
+void Drivetrain::CustomArcadeDrive(double xSpeed, double zRotation, bool squareInputs)
+{
+	xSpeed = Limit1507(xSpeed);
+
+	zRotation = Limit1507(zRotation);
+
+	//Square the inputs (while preserving the sign) to increase fine control while permitting full power.
+	if (squareInputs) {
+		xSpeed = std::copysign(xSpeed * xSpeed, xSpeed);
+		zRotation = std::copysign(zRotation * zRotation, zRotation);
+	}
+
+	double leftMotorOutput;
+	double rightMotorOutput;
+
+	double maxInput = std::copysign(std::max(fabs(xSpeed), fabs(zRotation)), xSpeed);
+
+	if (xSpeed >= 0.0)
+	{
+		if (zRotation >= 0.0) //First quandrant, else second quadrant
+		{
+			leftMotorOutput = maxInput;
+			rightMotorOutput = xSpeed - zRotation;
+		}
+		else
+		{
+			leftMotorOutput = xSpeed + zRotation;
+			rightMotorOutput = maxInput;
+		}
+	}
+	else //Third quadrant, else fourth quadrant
+	{
+		if (zRotation >= 0.0) 
+		{
+			leftMotorOutput = xSpeed + zRotation;
+			rightMotorOutput = maxInput;
+		}
+		else
+		{
+			leftMotorOutput = maxInput;
+			rightMotorOutput = xSpeed - zRotation;
+		}
+	}
+	Drive(Limit1507(leftMotorOutput), Limit1507(rightMotorOutput));
+
+}
+
 	// double leftThrottle, rightThrottle;
 	// leftThrottle  = leftJoyY + rightJoyX;
 	// rightThrottle =	leftJoyY + (-1)rightJoyX;
@@ -250,7 +271,7 @@ void CustomArcadeDrive(double leftJoyY, double rightJoyX)
 	// if(rightThrottle > 1)  rightThrottle =  1;
 	// if(rightThrottle < -1) rightThrottle = -1;
 	// Drive(leftThrottle, rightThrottle);
-}
+
 
 //**************** AHRS (NavX) *********************
 bool Drivetrain::IsGyroConnected(void)
@@ -426,34 +447,12 @@ bool Drivetrain::IsLowGear(void)
   	return false;
 }
 
-//**************** STILTS *********************
-void Drivetrain::DeployStilts( void )
-{
-	stilts->Set(DoubleSolenoid::kForward);
-	std::cout << "StiltsDeployed" << std::endl;
-}
-void Drivetrain::RetractStilts( void )
-{
-	stilts->Set(DoubleSolenoid::kReverse);
-	std::cout << "StiltsRetracted" << std::endl;
-}
-
-void Drivetrain::SetStilts(int stilts)
-{
-	if( stilts == DEPLOY_STILTS  ) DeployStilts();
-	if( stilts == RETRACT_STILTS ) RetractStilts();
-}
-
-bool Drivetrain::AreStiltsDeployed(void)
-{
-	DoubleSolenoid::Value StiltsPosition = (stilts->Get());
-
-	if( StiltsPosition == DoubleSolenoid::kForward)
-		return true;
-	else
-		return false;
-  return false;
-}
 unsigned char Drivetrain::lineStateReturn(void){
 	return m_currLineState;
+}
+double Limit1507 (double x)
+{
+	if (x > LIMIT) x = LIMIT;
+	if (x < -LIMIT) x = -LIMIT;
+	return x;
 }

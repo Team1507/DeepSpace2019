@@ -4,14 +4,16 @@
 
 #include <frc/commands/Subsystem.h>
 #include "frc/WPILib.h"
+#include "ctre/Phoenix.h"
 
 class Carriage : public frc::Subsystem {
  private:
     frc::DoubleSolenoid *carriageHatchEject;
     frc::DoubleSolenoid *carriageHatchLatch;
     frc::DoubleSolenoid *carriageTilt;
-    frc::DigitalInput   *carriagePhotoeye;
-    frc::Spark          *carriageRollers;
+    frc::DigitalInput   *frontcarriagePhotoeye;
+    frc::DigitalInput   *rearcarriagePhotoeye;
+    VictorSPX      *carriageRollers;
     bool m_HatchEject;
     bool m_OpenLatch;
     bool m_TiltUp;
@@ -19,7 +21,8 @@ public:
     Carriage();
     void InitDefaultCommand() override;
     void Periodic(void);
-    bool IsPhotoeyeDetected(void);
+    bool IsFrontPhotoeyeDetected(void);
+    bool IsRearPhotoeyeDetected(void);
     void OpenLatch(void);
     void CloseLatch(void);
     void SetLatch(int position);
@@ -34,6 +37,7 @@ public:
     const static int TILT_DOWN;
     void CarriageRollers(double power);
     void StopCarriageRollers(void);
+    void VictorSPXInit(void);
     const static int BRIDGE_SPEED;
     const static double GETTING_BALL_SPEED;
     const static double SHOOTING_BALL_SPEED;

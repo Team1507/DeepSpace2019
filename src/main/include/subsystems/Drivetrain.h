@@ -15,8 +15,6 @@ class Drivetrain : public frc::Subsystem {
     TalonSRX* rightDriveTalon;
     VictorSPX* rightDriveVictor;
     frc::DoubleSolenoid     *gearShift;
-    frc::DoubleSolenoid     *stilts;
-    frc::DigitalInput *wallPhotoeye; //Was in the .cpp, Ben L moved it because it looked funny there
     AHRS *ahrs;	    //NavX
     //Line Sensor Pins
     frc::AnalogInput* analog0;
@@ -49,14 +47,16 @@ class Drivetrain : public frc::Subsystem {
     int  GetLeftEncoder(void);
     int  GetRightEncoder(void);
     void ResetEncoders(void);
-    //Photoeye check
-    bool IsPhotoeyeDetected(void);
+    
     //Drive
     void   DriveWithGamepad( void );
     void   Drive( double left, double right );
     void   Stop( void );
+    double GetRightMotor(void);
+    double GetLeftMotor(void);
+    
     //Custom Arcade drive Function
-    void   CustomArcadeDrive(double leftJoyY, double rightJoyX);
+    void   CustomArcadeDrive(double xSpeed, double zRotation, bool squareInputs);
     //NavX
     bool   IsGyroConnected(void);
     double GetGyroYaw(void);            //yaw: Relative -180 to +180
@@ -73,11 +73,7 @@ class Drivetrain : public frc::Subsystem {
     void SetHighGear(void);
     void SetGear(int gear);
     bool IsLowGear(void);
-    //Stilts
-    void DeployStilts(void);
-    void RetractStilts(void);
-    void SetStilts(int stilts);
-    bool AreStiltsDeployed(void);
+    
     //line state
     unsigned char lineStateReturn(void);
 };

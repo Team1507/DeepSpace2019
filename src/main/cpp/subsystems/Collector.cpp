@@ -21,7 +21,7 @@ Collector::Collector() : Subsystem("Collector")
     collectorCage = new frc::DoubleSolenoid(1,2,3);
 	collectorBridge = new frc::DoubleSolenoid(1,6,7);
     collectorPhotoeye = new frc::DigitalInput(4);
-    collectorMotor =  new frc::Spark(5); //should be 0
+    collectorRollers =  new VictorSPX(14); 
     //m_CageDeploy = false;
 }
 
@@ -50,13 +50,22 @@ void Collector::CollectorPeriodic(void)
 	
 	//~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~Manual Spit from Collector~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 	double manualIntakeThrottle = Robot::m_oi->OperatorGamepad()->GetRawAxis(3); //HEY magic numebr again should be right trigger
-	if(manualIntakeThrottle >= 0.5){CollectorMotor(MANUAL_SPIT_SPEED);}
+	if(manualIntakeThrottle >= 0.5){CollectorRollers(MANUAL_SPIT_SPEED);}
 
 	//~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~Manual Rollers Intake (Slow & Fast)~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 	//if right bumper pressed fast, if back and right bumper pressed go slower? idk why we need this it seems dumb -Ben L.
-	if(Robot::m_oi->OperatorGamepad()->GetRawButton(6)) CollectorMotor(MANUAL_INTAKE_FAST);
-	else if (Robot::m_oi->OperatorGamepad()->GetRawButton(6) && Robot::m_oi->OperatorGamepad()->GetRawButton(7)) CollectorMotor(MANUAL_INTAKE_SLOW);
-
+	if(Robot::m_oi->OperatorGamepad()->GetRawButton(6)) 
+	{
+		CollectorRollers(MANUAL_INTAKE_FAST);
+	}
+	else if (Robot::m_oi->OperatorGamepad()->GetRawButton(6) && Robot::m_oi->OperatorGamepad()->GetRawButton(7)) 
+	{
+		CollectorRollers(MANUAL_INTAKE_SLOW);
+	}
+	else
+	{
+		CollectorRollers(0.0);
+	}
 	//~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~Manual Collector Control~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 	
 	double yR = Robot::m_oi->OperatorGamepad()->GetRawAxis(GAMEPADMAP_AXIS_R_Y);
@@ -114,12 +123,23 @@ void Collector::SetBridge(int position)
 bool Collector::IsBridgeDeployed(void){
 	return m_OpenBridge;
 }
-//********COLLECTOR MOTOR***********
-void Collector::CollectorMotor(double power)
+//********ROLLERS***********
+void Collector::CollectorRollers(double power)
 {
-	collectorMotor->Set(power);
+	collectorRollers->Set(ControlMode::PercentOutput, power);
 }
-void Collector::StopCollectorMotor(void)
+void Collector::StopCollectorRollers(void)
 {
-	collectorMotor->Set(0.0);
+	collectorRollers->Set(ControlMode::PercentOutput, 0.0);
+}
+
+// Victor Init of Rollers
+void Collector::VictorSPXInit(void)
+{
+	collectorRollers->ConfigFactoryDefault();
+
+	collectorRollers->SetInverted(true);
+
+	collectorRollers->SetNeutralMode(NeutralMode::Brake);
+
 }

@@ -1,7 +1,5 @@
 #include "OI.h"
 #include "commands/GrpTest2.h"
-#include "commands/GrpDriveOffHAB.h"
-#include "commands/GrpDriveOnHAB.h"
 #include "commands/CmdElevatorGo2Top.h"
 #include "commands/CmdElevatorGo2Bot.h"
 #include "commands/CmdElevatorGo2RocketMid.h"
@@ -20,8 +18,7 @@ OI::OI() {
     operator_gamepad = new frc::Joystick(1);
 
     //frc::SmartDashboard::PutData("GrpTest2 Command", new GrpTest2() );
-    frc::SmartDashboard::PutData("GrpDriveOffHAB Command", new GrpDriveOffHAB() );
-    frc::SmartDashboard::PutData("GrpDriveOnHAB Command", new GrpDriveOnHAB() );
+   
     frc::SmartDashboard::PutData("GrpStartLeftPlaceHatch", new GrpStartLeftPlaceHatch() );
     frc::SmartDashboard::PutData("GrpStartRightPlaceHatch", new GrpStartRightPlaceHatch() );
 

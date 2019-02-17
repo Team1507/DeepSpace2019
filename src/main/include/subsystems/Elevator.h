@@ -11,6 +11,7 @@ class Elevator: public frc::Subsystem {
 private:
 	
 	TalonSRX* elevatorTalonSRX;
+	VictorSPX* elevatorVictorSPX;
 
 public:
 	Elevator();

@@ -3,6 +3,7 @@
 #define COLLECTOR_H
 #include <frc/commands/Subsystem.h>
 #include "frc/WPILib.h"
+#include "ctre/Phoenix.h"
 
 class Collector : public frc::Subsystem {
  private:
@@ -11,7 +12,7 @@ class Collector : public frc::Subsystem {
     frc::DoubleSolenoid *collectorCage;
     frc::DoubleSolenoid *collectorBridge;
     frc::DigitalInput *collectorPhotoeye;
-    frc::Spark *collectorMotor;
+    VictorSPX      *collectorRollers;
     bool m_DeployCage;
     bool m_OpenBridge;
  public:
@@ -36,7 +37,8 @@ class Collector : public frc::Subsystem {
     const static int MANUAL_SPIT_SPEED;
     const static int MANUAL_INTAKE_FAST;
     const static int MANUAL_INTAKE_SLOW;
-    void CollectorMotor(double power);
-    void StopCollectorMotor(void);
+    void CollectorRollers(double power);
+    void StopCollectorRollers(void);
+    void VictorSPXInit(void);
 };
 #endif

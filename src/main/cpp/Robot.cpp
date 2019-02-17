@@ -36,8 +36,14 @@ void Robot::RobotInit() {
     
     frc::SmartDashboard::PutData("Auto Modes", &m_chooser);
 
+    //Subsystem Init
+    m_drivetrain->Init();
+
+
     m_drivetrain->LineSensorsRetract();
     m_elevator->TalonSRXinit();
+    m_carriage->VictorSPXInit();
+    m_collector->VictorSPXInit();
 
     //CAMERA  
     cs::UsbCamera camera = frc::CameraServer::GetInstance()->StartAutomaticCapture();
@@ -52,19 +58,21 @@ void Robot::RobotInit() {
 
 void Robot::RobotPeriodic() 
 {
-    m_drivetrain->DrivetrainPeriodic();
-    m_elevator->Periodic();
-    m_collector->CollectorPeriodic();
-    m_carriage->Periodic();
-    m_driverfeedback->DriverFeedbackPeriodic();
-    Write2Dashboard();
+    // m_drivetrain->DrivetrainPeriodic();
+     m_elevator->Periodic();
+    // m_collector->CollectorPeriodic();
+    // m_carriage->Periodic();
+    // m_driverfeedback->DriverFeedbackPeriodic();
+     Write2Dashboard();
+
+    m_drivetrain->DriveWithGamepad(); //**HEY**this will be fixed later
+
 }
 
 void Robot::DisabledInit() 
 {
     std::cout<<"Disabled Init"<<std::endl;
     m_driverfeedback->RumbleOff();
-    
 }
 
 void Robot::DisabledPeriodic() { frc::Scheduler::GetInstance()->Run(); }
@@ -90,7 +98,6 @@ void Robot::AutonomousPeriodic() { frc::Scheduler::GetInstance()->Run(); }
 
 void Robot::TeleopInit() {
   std::cout<<"Teleop Init"<<std::endl;
-  m_driverfeedback->RumbleOn();
   if (m_autonomousCommand != nullptr) {
     m_autonomousCommand->Cancel();
     m_autonomousCommand = nullptr;
@@ -107,20 +114,21 @@ int main() { return frc::StartRobot<Robot>(); }
 
 void Write2Dashboard(void)
 {
-    // SmartDashboard::PutNumber("L_Motor",  Robot::m_drivetrain->GetLeftMotor()  );
-    // SmartDashboard::PutNumber("R_Motor",  Robot::m_drivetrain->GetRightMotor()  );
+    SmartDashboard::PutNumber("L_Motor",  Robot::m_drivetrain->GetLeftMotor()  );
+    SmartDashboard::PutNumber("R_Motor",  Robot::m_drivetrain->GetRightMotor()  );
 
-    // SmartDashboard::PutNumber("D_L_Y_axis",  Robot::m_oi->DriverGamepad()->GetRawAxis(GAMEPADMAP_AXIS_L_Y)  );
-    // SmartDashboard::PutNumber("D_R_Y_axis",  Robot::m_oi->DriverGamepad()->GetRawAxis(GAMEPADMAP_AXIS_R_Y)  );
-    // SmartDashboard::PutNumber("D_L_X_axis",  Robot::m_oi->DriverGamepad()->GetRawAxis(GAMEPADMAP_AXIS_L_X)  );
-    // SmartDashboard::PutNumber("D_R_X_axis",  Robot::m_oi->DriverGamepad()->GetRawAxis(GAMEPADMAP_AXIS_R_X)  );
+    SmartDashboard::PutNumber("D_L_Y_axis",  Robot::m_oi->DriverGamepad()->GetRawAxis(GAMEPADMAP_AXIS_L_Y)  );
+    SmartDashboard::PutNumber("D_R_Y_axis",  Robot::m_oi->DriverGamepad()->GetRawAxis(GAMEPADMAP_AXIS_R_Y)  );
+    SmartDashboard::PutNumber("D_L_X_axis",  Robot::m_oi->DriverGamepad()->GetRawAxis(GAMEPADMAP_AXIS_L_X)  );
+    SmartDashboard::PutNumber("D_R_X_axis",  Robot::m_oi->DriverGamepad()->GetRawAxis(GAMEPADMAP_AXIS_R_X)  );
 
-    // SmartDashboard::PutNumber("D_L_Trig",    Robot::m_oi->DriverGamepad()->GetRawAxis(GAMEPADMAP_AXIS_L_TRIG)  );
-    // SmartDashboard::PutNumber("D_R_Trig",    Robot::m_oi->DriverGamepad()->GetRawAxis(GAMEPADMAP_AXIS_R_TRIG)  );
+    SmartDashboard::PutNumber("D_L_Trig",    Robot::m_oi->DriverGamepad()->GetRawAxis(GAMEPADMAP_AXIS_L_TRIG)  );
+    SmartDashboard::PutNumber("D_R_Trig",    Robot::m_oi->DriverGamepad()->GetRawAxis(GAMEPADMAP_AXIS_R_TRIG)  );
 
+	SmartDashboard::PutNumber("LeftEnc",    Robot::m_drivetrain->GetLeftEncoder());
+	SmartDashboard::PutNumber("RightEnc",   Robot::m_drivetrain->GetRightEncoder());  
 
-	// SmartDashboard::PutNumber("LeftEnc",    Robot::m_drivetrain->GetLeftEncoder());
-	// SmartDashboard::PutNumber("RightEnc",   Robot::m_drivetrain->GetRightEncoder());  
-	// SmartDashboard::PutNumber("LeftEncVel", Robot::m_drivetrain->GetLeftEncVel());
-	// SmartDashboard::PutNumber("RightEncVel",Robot::m_drivetrain->GetRightEncVel());
+    SmartDashboard::PutBoolean("Front_Photoeye", Robot::m_carriage->IsFrontPhotoeyeDetected());
+    SmartDashboard::PutBoolean("Rear_Photoeye", Robot::m_carriage->IsRearPhotoeyeDetected());
+
 }

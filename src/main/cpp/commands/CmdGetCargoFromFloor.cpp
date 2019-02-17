@@ -55,13 +55,13 @@ void CmdGetCargoFromFloor::Execute()
             //Robot::m_collector->CollectorMotor(Collector::COLLECT_SPEED); Ben L said this looked unnecessary
             if(Robot::m_collector->IsPhotoeyeDetected())//stops when detected
             {
-		        Robot::m_collector->StopCollectorMotor();
+		        Robot::m_collector->StopCollectorRollers();
                 std::cout<<"STAGE3 Done"<<std::endl;
                 m_state = STAGE4;
             }
             else
             {
-                Robot::m_collector->CollectorMotor(Collector::COLLECT_SPEED); //Starts collector motor
+                Robot::m_collector->CollectorRollers(Collector::COLLECT_SPEED); //Starts collector motor
             }
             break;
 
@@ -80,7 +80,7 @@ void CmdGetCargoFromFloor::Execute()
 
         case STAGE6://transfer cargo to the scorer
             Robot::m_carriage->CarriageRollers(Carriage::BRIDGE_SPEED);//start scorer
-            Robot::m_collector->CollectorMotor(Collector::BRIDGE_SPEED);//start collector motor transfer
+            Robot::m_collector->CollectorRollers(Collector::BRIDGE_SPEED);//start collector motor transfer
             std::cout<<"STAGE6 Done"<<std::endl;
             m_state = STAGE7;
             break;
