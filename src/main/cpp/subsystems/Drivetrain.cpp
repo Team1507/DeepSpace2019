@@ -6,28 +6,23 @@
 #include "OI.h"
 #include "GamepadMap.h"
 #include "subsystems/DriverFeedback.h"
-//#include "frc/wpilib/RobotDriveBase.h"
+#include "commands/CmdDriveWithGamepad.h"
 
-
-//Line Follower State Machine defines
+//Constant Defines
 #define STATE_LINE_HUNT 	 0
 #define STATE_LINE_FOLLOW  	 1
 #define BASE_THROTTLE      	.35  //.4	
 #define THROTTLE_ADJUSTMENT .08
 #define THROTTLE_MULTIPLIER	1.0
-
 #define LIMIT 1.0
 
 //Drivetrain Constants
 const int Drivetrain::LO_GEAR = 0;
 const int Drivetrain::HI_GEAR = 1;
-const int Drivetrain::RETRACT_STILTS = 0;
-const int Drivetrain::DEPLOY_STILTS  = 1;
 const int Drivetrain::ENC_TICKS_PER_INCH = 42;
 
 //Local Prototypes
 double Limit1507 (double x);
-
 
 Drivetrain::Drivetrain() : Subsystem("Drivetrain") 
 {
@@ -49,33 +44,39 @@ Drivetrain::Drivetrain() : Subsystem("Drivetrain")
 
 void Drivetrain::Init(void)
 {
+	//Reset Talons
 	leftDriveTalon->ConfigFactoryDefault();
 	rightDriveTalon->ConfigFactoryDefault();
+	leftDriveVictor->ConfigFactoryDefault();
+	rightDriveVictor->ConfigFactoryDefault();
 	
+	//Set Neutral Mode
 	leftDriveTalon->SetNeutralMode(NeutralMode::Brake);
   	rightDriveTalon->SetNeutralMode(NeutralMode::Brake);
-
 	leftDriveVictor->SetNeutralMode(NeutralMode::Brake);
   	rightDriveVictor->SetNeutralMode(NeutralMode::Brake);
 
-  	//encoder code
+  	//Encoder Configuration
   	leftDriveTalon->ConfigSelectedFeedbackSensor(FeedbackDevice::QuadEncoder,0,0);
   	rightDriveTalon->ConfigSelectedFeedbackSensor(FeedbackDevice::QuadEncoder,0,0);
 	
+	//Compensation for inverted wires
 	leftDriveTalon->SetInverted(false);
 	rightDriveTalon->SetInverted(true);
-
 	leftDriveVictor->SetInverted(false);
 	rightDriveVictor->SetInverted(true);
-
+	
+	//Start Following
 	leftDriveVictor->Follow(*leftDriveTalon);
   	rightDriveVictor->Follow(*rightDriveTalon);  
 }
 
-void Drivetrain::InitDefaultCommand() 
+
+void Drivetrain::InitDefaultCommand()
 {
-	
+	SetDefaultCommand(new CmdDriveWithGamepad());
 }
+
 
 void Drivetrain::DrivetrainPeriodic(void)
 {
@@ -111,11 +112,8 @@ void Drivetrain::DrivetrainPeriodic(void)
 
 	//Write Gyro and photoeye state to dashboard
 	frc::SmartDashboard::PutNumber("GyroAngle", GetGyroAngle());
-
-
-	
-
 }
+
 
 int	Drivetrain::GetLeftEncoder(void)
 {
@@ -133,9 +131,9 @@ void Drivetrain::ResetEncoders(void)
 	rightDriveTalon->SetSelectedSensorPosition(0,0,0);
 }
 
+//~~~~~~~~~~~~DRIVE WITH GAMEPAD~~~~~~~~~~~~~~
 void Drivetrain::DriveWithGamepad( void )
 {
-	//return;
 	const double deadzone = 0.08;
 	
 	double yL = Robot::m_oi->DriverGamepad()->GetRawAxis(GAMEPADMAP_AXIS_L_Y);
@@ -144,14 +142,14 @@ void Drivetrain::DriveWithGamepad( void )
 	double xR = -(Robot::m_oi->DriverGamepad()->GetRawAxis(GAMEPADMAP_AXIS_R_X)); //ben did this to fix L being R and R being L
 	double tL = Robot::m_oi->DriverGamepad()->GetRawAxis(GAMEPADMAP_AXIS_L_TRIG);
 	double tR = Robot::m_oi->DriverGamepad()->GetRawAxis(GAMEPADMAP_AXIS_R_TRIG);
-//	bool   bL = Robot::m_oi->DriverGamepad()->GetRawButton(GAMEPADMAP_BUTTON_LBUMP);
+	//bool   bL = Robot::m_oi->DriverGamepad()->GetRawButton(GAMEPADMAP_BUTTON_LBUMP);
 	bool   bL = false;
 	if (fabs(yL)<= deadzone) yL = 0;
 	if (fabs(xL)<= deadzone) xL = 0;
 	if (fabs(yR)<= deadzone) yR = 0;
 	if (fabs(xR)<= deadzone) xR = 0;
 
-	//*******Gear Shift********
+	//**************Gear Shift****************
 	if (Robot::m_oi->DriverGamepad()->GetRawButtonPressed(GAMEPADMAP_BUTTON_RBUMP))
 	{
 		SetHighGear();
@@ -163,19 +161,20 @@ void Drivetrain::DriveWithGamepad( void )
 		std::cout<<"LowGear"<<std::endl;
 	}
 
-	
-	//*********Line Follower Code*************
+	//**********Line Follower Code***********
 	if(bL) //if LEFT bumper pushed, Enable Line Follow if line is detected 
 	{
 		//If Sensors not deployed, deploy them
-		if( !lineSensorsDeployed )
+		if(!lineSensorsDeployed)
+		{
 			LineSensorsDeploy();
-
+		}
 		//If LineFolower returns False (line not detected), use Gamepad for drive
-		if ( !LineFollower() ){}
+		if(!LineFollower())
+		{
 			//differentialDrive->ArcadeDrive(yL,xR, true);
 			//HEY REPLACE WITH THE NEW ARCADE DRIVE LINE
-
+		}
 	}
 	else 
 	{
@@ -185,7 +184,6 @@ void Drivetrain::DriveWithGamepad( void )
 		//Use Gamepad to drive
 		Drive(yL, yR);
 		//differentialDrive->ArcadeDrive(yL,xR, true);
-		//differentialDrive->ArcadeDrive(,xR, true);
 		//HEY REPLACE WITH THE NEW ARCADE DRIVE LINE
 	}
 		
@@ -262,17 +260,6 @@ void Drivetrain::CustomArcadeDrive(double xSpeed, double zRotation, bool squareI
 	Drive(Limit1507(leftMotorOutput), Limit1507(rightMotorOutput));
 
 }
-
-	// double leftThrottle, rightThrottle;
-	// leftThrottle  = leftJoyY + rightJoyX;
-	// rightThrottle =	leftJoyY + (-1)rightJoyX;
-	// if(leftThrottle > 1)   leftThrottle  =  1;
-	// if(leftThrottle < -1)  leftThrottle  = -1;
-	// if(rightThrottle > 1)  rightThrottle =  1;
-	// if(rightThrottle < -1) rightThrottle = -1;
-	// Drive(leftThrottle, rightThrottle);
-
-
 //**************** AHRS (NavX) *********************
 bool Drivetrain::IsGyroConnected(void)
 {

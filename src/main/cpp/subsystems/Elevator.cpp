@@ -34,7 +34,7 @@ void Elevator::InitDefaultCommand() {
 	
 }
 
-void Elevator::Periodic() {
+void Elevator::ElevatorPeriodic() {
 	frc::SmartDashboard::PutBoolean("Limit Switch Top"   ,GetElevatorLimitSwitchTop());
 	frc::SmartDashboard::PutBoolean("Limit Switch Bottom",GetElevatorLimitSwitchBot());
 	if( GetElevatorLimitSwitchBot() ) ClearElevatorEncoder();

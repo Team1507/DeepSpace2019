@@ -7,12 +7,11 @@
 
 class Collector : public frc::Subsystem {
  private:
-  // It's desirable that everything possible under private except
-  // for methods that implement subsystem capabilities
+    
     frc::DoubleSolenoid *collectorCage;
     frc::DoubleSolenoid *collectorBridge;
-    frc::DigitalInput *collectorPhotoeye;
-    VictorSPX      *collectorRollers;
+    frc::DigitalInput   *collectorPhotoeye;
+    VictorSPX           *collectorRollers;
     bool m_DeployCage;
     bool m_OpenBridge;
  public:
@@ -32,11 +31,11 @@ class Collector : public frc::Subsystem {
     const static int OPEN_BRIDGE;
     const static int RETRACT_CAGE;
     const static int DEPLOY_CAGE;
-    const static int COLLECT_SPEED;
-    const static int BRIDGE_SPEED;
-    const static int MANUAL_SPIT_SPEED;
-    const static int MANUAL_INTAKE_FAST;
-    const static int MANUAL_INTAKE_SLOW;
+    const static double COLLECT_SPEED;
+    const static double BRIDGE_SPEED;
+    const static double MANUAL_SPIT_SPEED;
+    const static double MANUAL_INTAKE_FAST;
+    const static double MANUAL_INTAKE_SLOW;
     void CollectorRollers(double power);
     void StopCollectorRollers(void);
     void VictorSPXInit(void);

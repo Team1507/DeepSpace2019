@@ -5,9 +5,9 @@ const int Carriage::LATCH_CLOSE = 0;
 const int Carriage::LATCH_OPEN = 1;
 const int Carriage::TILT_DOWN = 0;
 const int Carriage::TILT_UP = 1;
-const int Carriage::BRIDGE_SPEED = 0.2; //HEY why is this an int? benl thinks this is stoopid
-const double Carriage::GETTING_BALL_SPEED = .5;	//may want to change
-const double Carriage::SHOOTING_BALL_SPEED = .7;//may want to change
+const double Carriage::BRIDGE_SPEED = 0.2; 
+const double Carriage::GETTING_BALL_SPEED = 0.5;	//may want to change
+const double Carriage::SHOOTING_BALL_SPEED = .9;  //may want to change
 
 Carriage::Carriage() : Subsystem("Carriage") {
   	carriageHatchLatch = new frc::DoubleSolenoid(2,4,5);
@@ -21,42 +21,35 @@ void Carriage::InitDefaultCommand() {}
 
 
 //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~PERIODIC START~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-void Carriage::Periodic()
+void Carriage::CarriagePeriodic()
 {
 	//******************Hatch grab and release*****************
-	if(Robot::m_oi->OperatorGamepad()->GetRawButton(3)) OpenLatch();
-	else CloseLatch();
+	if(Robot::m_oi->OperatorGamepad()->GetRawButton(GAMEPADMAP_BUTTON_X)) CloseLatch();
+	else OpenLatch();
 
 	//******************Carrige Tilt***************************
-	static bool tiltFlag = false;
-	bool yPressed = Robot::m_oi->OperatorGamepad()->GetRawButton(GAMEPADMAP_BUTTON_Y);
-	if( !(IsCarriageTiltedUp()) && yPressed && !(tiltFlag))
+	bool yPressed = Robot::m_oi->OperatorGamepad()->GetRawButtonPressed(GAMEPADMAP_BUTTON_Y);
+
+	if(yPressed)
 	{
-		tiltFlag = true;
-		TiltDown();
-	}
-	else if( IsCarriageTiltedUp() && yPressed && !(tiltFlag))
-	{
-		tiltFlag = true;
-		TiltUp();
-	}
-	else
-	{
-		tiltFlag = false;
+		if(IsCarriageTiltedUp())
+			TiltDown();
+		else
+			TiltUp();
 	}
 
 	//*****************Carrige Rollers Intake / Out / OutFast***************
 	//if left trigger pushed get ball from human
-	if( Robot::m_oi->OperatorGamepad()->GetRawAxis(2) >= .5 )
+	if( Robot::m_oi->OperatorGamepad()->GetRawAxis(GAMEPADMAP_AXIS_L_TRIG) >= .5 )
 	{
 		CarriageRollers(GETTING_BALL_SPEED);
 	}
 	//if left bumper pushed shoot, if left bumper and back pushed, accept from bridge
-	else if( Robot::m_oi->OperatorGamepad()->GetRawButton(5) )
+	else if( Robot::m_oi->OperatorGamepad()->GetRawButton(GAMEPADMAP_BUTTON_LBUMP) )
 	{
 		CarriageRollers(SHOOTING_BALL_SPEED);
 	}
-	else if(  Robot::m_oi->OperatorGamepad()->GetRawButton(5) && Robot::m_oi->OperatorGamepad()->GetRawButton(7) )
+	else if(  Robot::m_oi->OperatorGamepad()->GetRawButton(GAMEPADMAP_BUTTON_LBUMP) && Robot::m_oi->OperatorGamepad()->GetRawButton(GAMEPADMAP_BUTTON_BACK) )
 	{
 		CarriageRollers(GETTING_BALL_SPEED);
 	}

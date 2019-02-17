@@ -20,7 +20,7 @@ class Carriage : public frc::Subsystem {
 public:
     Carriage();
     void InitDefaultCommand() override;
-    void Periodic(void);
+    void CarriagePeriodic(void);
     bool IsFrontPhotoeyeDetected(void);
     bool IsRearPhotoeyeDetected(void);
     void OpenLatch(void);
@@ -38,7 +38,7 @@ public:
     void CarriageRollers(double power);
     void StopCarriageRollers(void);
     void VictorSPXInit(void);
-    const static int BRIDGE_SPEED;
+    const static double BRIDGE_SPEED;
     const static double GETTING_BALL_SPEED;
     const static double SHOOTING_BALL_SPEED;
 

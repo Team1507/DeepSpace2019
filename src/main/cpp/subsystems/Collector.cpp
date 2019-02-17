@@ -9,18 +9,18 @@ const int Collector::RETRACT_CAGE = 0;
 const int Collector::DEPLOY_CAGE = 1;
 const int Collector::CLOSE_BRIDGE = 0;
 const int Collector::OPEN_BRIDGE = 1;
-const int Collector::COLLECT_SPEED = 0.3;
-const int Collector::BRIDGE_SPEED = 0.2;
+const double Collector::COLLECT_SPEED = 0.3;
+const double Collector::BRIDGE_SPEED = 0.2;
 
-const int Collector::MANUAL_SPIT_SPEED = 1;
-const int Collector::MANUAL_INTAKE_FAST = .7;//May want to change l8r
-const int Collector::MANUAL_INTAKE_SLOW = .4;
+const double Collector::MANUAL_SPIT_SPEED = -1.0;
+const double Collector::MANUAL_INTAKE_FAST = 0.7;  //May want to change 
+const double Collector::MANUAL_INTAKE_SLOW = 0.4;
 
 Collector::Collector() : Subsystem("Collector")
 { 
     collectorCage = new frc::DoubleSolenoid(1,2,3);
 	collectorBridge = new frc::DoubleSolenoid(1,6,7);
-    collectorPhotoeye = new frc::DigitalInput(4);
+    collectorPhotoeye = new frc::DigitalInput(7);
     collectorRollers =  new VictorSPX(14); 
     //m_CageDeploy = false;
 }
@@ -30,35 +30,29 @@ void Collector::InitDefaultCommand() {}
 void Collector::CollectorPeriodic(void)
 {
 	//~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~Bridge Open/Close Toggle~~~~~~~~~~~~~~~~~~~~~~~~~~
-	static bool flag = false;
-	static bool startPressed = Robot::m_oi->OperatorGamepad()->GetRawButton(8); //HEY magic number fix gampad map Start
-	//
-	if(!(IsBridgeDeployed()) && startPressed && !(flag))
+	bool startPressed = Robot::m_oi->OperatorGamepad()->GetRawButtonPressed(GAMEPADMAP_BUTTON_START); 
+	//This is bens awful looking toggle attempt
+	
+	if(startPressed)
 	{
-		flag = true;
-		OpenBridge();
-	}
-	else if(IsBridgeDeployed() && startPressed && !(flag))
-	{
-		flag = true;
-		CloseBridge();
-	}
-	else
-	{
-		flag = false;
+		if(IsBridgeDeployed())
+			CloseBridge();
+		else
+			OpenBridge();
 	}
 	
-	//~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~Manual Spit from Collector~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-	double manualIntakeThrottle = Robot::m_oi->OperatorGamepad()->GetRawAxis(3); //HEY magic numebr again should be right trigger
-	if(manualIntakeThrottle >= 0.5){CollectorRollers(MANUAL_SPIT_SPEED);}
-
-	//~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~Manual Rollers Intake (Slow & Fast)~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-	//if right bumper pressed fast, if back and right bumper pressed go slower? idk why we need this it seems dumb -Ben L.
-	if(Robot::m_oi->OperatorGamepad()->GetRawButton(6)) 
+	//~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~Manual Collector Roller Control~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+	double manualIntakeThrottle = Robot::m_oi->OperatorGamepad()->GetRawAxis(GAMEPADMAP_AXIS_R_TRIG); 
+	if(manualIntakeThrottle >= 0.5)
+	{
+		CollectorRollers(MANUAL_SPIT_SPEED);
+	}
+	//if right bumper pressed go fast, if back and right bumper pressed go slower? idk why we need this it seems dumb -Ben L.
+	else if(Robot::m_oi->OperatorGamepad()->GetRawButton(GAMEPADMAP_BUTTON_RBUMP)) 
 	{
 		CollectorRollers(MANUAL_INTAKE_FAST);
 	}
-	else if (Robot::m_oi->OperatorGamepad()->GetRawButton(6) && Robot::m_oi->OperatorGamepad()->GetRawButton(7)) 
+	else if (Robot::m_oi->OperatorGamepad()->GetRawButton(GAMEPADMAP_BUTTON_RBUMP) && Robot::m_oi->OperatorGamepad()->GetRawButton(GAMEPADMAP_BUTTON_BACK)) 
 	{
 		CollectorRollers(MANUAL_INTAKE_SLOW);
 	}
@@ -66,14 +60,22 @@ void Collector::CollectorPeriodic(void)
 	{
 		CollectorRollers(0.0);
 	}
+	//*********Auto Collector Control***********
+
+
+
+
+
+
+
 	//~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~Manual Collector Control~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 	
 	double yR = Robot::m_oi->OperatorGamepad()->GetRawAxis(GAMEPADMAP_AXIS_R_Y);
 	if(fabs(yR) <= DEADBAND_CONST) yR = 0;	//Deadband code
 	//if joystick pushed up, cage goes up
 	//if joystick pushed down, cage goes down
-	if(yR >= 0.5) RetractCage();
-	if(yR <= -0.5) DeployCage();
+	if(yR >= 0.5) DeployCage();
+	if(yR <= -0.5) RetractCage();
 }
 
 //********************************************END OF PERIODIC**********************************************************
@@ -83,7 +85,6 @@ void Collector::CollectorPeriodic(void)
 bool Collector::IsPhotoeyeDetected(void)
 {
 	return collectorPhotoeye->Get();
-	Robot::m_driverfeedback->RumbleOn();
 }
 //********CAGE***********
 void Collector::DeployCage(void)

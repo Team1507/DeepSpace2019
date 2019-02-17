@@ -16,7 +16,7 @@ private:
 public:
 	Elevator();
 	void InitDefaultCommand() override;
-	void Periodic() override;
+	void ElevatorPeriodic(void);
 
 	void TalonSRXinit(void);
 	void ElevatorMotorDrive(double power);
