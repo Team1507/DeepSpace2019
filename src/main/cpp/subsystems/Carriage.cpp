@@ -40,11 +40,11 @@ void Carriage::CarriagePeriodic()
 		}
 		//Start counting down, when done stop rumbling
 		if(rumbleLatchFlag > 0) rumbleLatchFlag--;
-		else Robot::m_driverfeedback->RumbleOff();
+		if(rumbleLatchFlag == 1) Robot::m_driverfeedback->RumbleOff();
 	}
 	else
 	{
-		if((!Robot::m_oi->OperatorGamepad()->GetRawButtonReleased(GAMEPADMAP_BUTTON_X))) // if the button is not pressed
+		if((Robot::m_oi->OperatorGamepad()->GetRawButtonReleased(GAMEPADMAP_BUTTON_X))) // if the button is released
 		{
 			Robot::m_driverfeedback->RumbleOn();
 			OpenLatch();
@@ -54,7 +54,7 @@ void Carriage::CarriagePeriodic()
 		}
 		//Start counting down, when done stop rumbling
 		if(rumbleReleaseFlag > 0) rumbleReleaseFlag--;
-		else Robot::m_driverfeedback->RumbleOff();	
+		if(rumbleReleaseFlag == 1) Robot::m_driverfeedback->RumbleOff();
 	}
 	
 	//******************Carrige Tilt***************************
@@ -129,12 +129,12 @@ bool Carriage::IsHatchLatched(void){
 //********TILT***********
 void Carriage::TiltUp(void)
 {
-	carriageHatchLatch->Set(DoubleSolenoid::kForward);
+	carriageTilt->Set(DoubleSolenoid::kForward);
 	m_TiltUp = true;
 }
 void Carriage::TiltDown(void)
 {
-	carriageHatchLatch->Set(DoubleSolenoid::kReverse);
+	carriageTilt->Set(DoubleSolenoid::kReverse);
 	m_TiltUp = false;
 }
 void Carriage::SetTilt(int position)

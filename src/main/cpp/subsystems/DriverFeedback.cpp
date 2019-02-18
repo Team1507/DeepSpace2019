@@ -60,8 +60,8 @@ void DriverFeedback::RumbleOn(void)
 	// Robot::m_oi->DriverGamepad()->SetRumble(frc::GenericHID::kLeftRumble, 0.4);
 	// Robot::m_oi->DriverGamepad()->SetRumble(frc::GenericHID::kRightRumble, 0.4);
 
-	// Robot::m_oi->OperatorGamepad()->SetRumble(frc::GenericHID::kLeftRumble, 0.4);
-	// Robot::m_oi->OperatorGamepad()->SetRumble(frc::GenericHID::kRightRumble, 0.4);
+	 Robot::m_oi->OperatorGamepad()->SetRumble(frc::GenericHID::kLeftRumble, 0.4);
+	 Robot::m_oi->OperatorGamepad()->SetRumble(frc::GenericHID::kRightRumble, 0.4);
 }
 
 void DriverFeedback::RumbleOff(void)

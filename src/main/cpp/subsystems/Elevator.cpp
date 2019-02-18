@@ -44,8 +44,8 @@ void Elevator::ElevatorPeriodic() {
 	
 	double yL = Robot::m_oi->OperatorGamepad()->GetRawAxis(GAMEPADMAP_AXIS_L_Y);
 	if(fabs(yL) <= DEADZONE_CONST) yL = 0;	//Deadzone code
-	//Position mode - button just pressed
-    if(Robot::m_oi->OperatorGamepad()->GetRawButton(1))
+	//Elevator Manual Override
+    if(Robot::m_oi->OperatorGamepad()->GetRawButton(GAMEPADMAP_BUTTON_A))
     { 
         elevatorTalonSRX->Set(ControlMode::PercentOutput, yL *(-1.0));
     } 

@@ -14,12 +14,12 @@
 #define BASE_THROTTLE      	.35  //.4	
 #define THROTTLE_ADJUSTMENT .08
 #define THROTTLE_MULTIPLIER	1.0
-#define LIMIT 1.0
+#define LIMIT 0.8					//Arcade Drive power Limiter
 
 //Drivetrain Constants
 const int Drivetrain::LO_GEAR = 0;
 const int Drivetrain::HI_GEAR = 1;
-const int Drivetrain::ENC_TICKS_PER_INCH = 42;
+const double Drivetrain::ENC_TICKS_PER_INCH = 34.43;
 
 //Local Prototypes
 double Limit1507 (double x);
@@ -117,7 +117,7 @@ void Drivetrain::DrivetrainPeriodic(void)
 
 int	Drivetrain::GetLeftEncoder(void)
 {
-	return leftDriveTalon->GetSensorCollection().GetQuadraturePosition();
+	return leftDriveTalon->GetSensorCollection().GetQuadraturePosition()*(-1.0);
 }
 
 int Drivetrain::GetRightEncoder(void)
@@ -144,6 +144,7 @@ void Drivetrain::DriveWithGamepad( void )
 	double tR = Robot::m_oi->DriverGamepad()->GetRawAxis(GAMEPADMAP_AXIS_R_TRIG);
 	//bool   bL = Robot::m_oi->DriverGamepad()->GetRawButton(GAMEPADMAP_BUTTON_LBUMP);
 	bool   bL = false;
+	
 	if (fabs(yL)<= deadzone) yL = 0;
 	if (fabs(xL)<= deadzone) xL = 0;
 	if (fabs(yR)<= deadzone) yR = 0;
@@ -183,7 +184,9 @@ void Drivetrain::DriveWithGamepad( void )
 			Robot::m_driverfeedback->RumbleOff();//Because we don't want to constantly turn rumble off, we do it once here BL 
 			LineSensorsRetract();
 		}
-		Drive(yL, yR);
+		//Drive(yL, yR);
+
+		CustomArcadeDrive(yL,xR, true);
 		//differentialDrive->ArcadeDrive(yL,xR, true);
 		//HEY REPLACE WITH THE NEW ARCADE DRIVE LINE
 	}

@@ -51,14 +51,15 @@ void Robot::RobotInit() {
     m_drivetrain->ResetEncoders();
 
     //CAMERA  
-    cs::UsbCamera camera = frc::CameraServer::GetInstance()->StartAutomaticCapture();
-//     camera.SetResolution(320, 240); //was 160,120
-//         //camera.SetVideoMode(cs::VideoMode::kMJPEG, 320, 240, 8); //kGray, kRGB565
-//     camera.SetFPS(15);
-//     camera.SetBrightness(0);       //100-most bright //0- most dark //was 20
-//         //camera.SetVideoMode() //stinky line don't worry about it
-//         //camera.SetWhiteBalanceManual(cs::VideoCamera::kFixedFluorescent1);
-//     camera.SetExposureManual(38);   //0- Mbps 0.73, darker //100- Mbps .31, lighter 
+    cs::UsbCamera camera = frc::CameraServer::GetInstance()->StartAutomaticCapture(0);
+    camera.SetConnectionStrategy(cs::VideoSource::kConnectionKeepOpen);
+    camera.SetResolution(320, 240); //was 160,120
+        //camera.SetVideoMode(cs::VideoMode::kMJPEG, 320, 240, 8); //kGray, kRGB565
+    camera.SetFPS(15);
+    camera.SetBrightness(20);       //100-most bright //0- most dark //was 20
+        //camera.SetVideoMode() //stinky line don't worry about it
+        //camera.SetWhiteBalanceManual(cs::VideoCamera::kFixedFluorescent1);
+    camera.SetExposureManual(38);   //0- Mbps 0.73, darker //100- Mbps .31, lighter 
 }
 
 void Robot::RobotPeriodic() 
@@ -84,6 +85,8 @@ void Robot::DisabledPeriodic() { frc::Scheduler::GetInstance()->Run(); }
 
 void Robot::AutonomousInit() {
     std::cout<<"Auto Init"<<std::endl;
+    m_carriage->TiltDown();    
+
   // std::string autoSelected = frc::SmartDashboard::GetString(
   //     "Auto Selector", "Default");
   // if (autoSelected == "My Auto") {
@@ -101,12 +104,15 @@ void Robot::AutonomousInit() {
 
 void Robot::AutonomousPeriodic() { frc::Scheduler::GetInstance()->Run(); }
 
-void Robot::TeleopInit() {
-  std::cout<<"Teleop Init"<<std::endl;
-  if (m_autonomousCommand != nullptr) {
-    m_autonomousCommand->Cancel();
-    m_autonomousCommand = nullptr;
-  }
+void Robot::TeleopInit() 
+{
+    std::cout<<"Teleop Init"<<std::endl;
+    m_carriage->TiltDown();    
+
+    if (m_autonomousCommand != nullptr) {
+        m_autonomousCommand->Cancel();
+        m_autonomousCommand = nullptr;
+    }
 }
 
 void Robot::TeleopPeriodic() { frc::Scheduler::GetInstance()->Run(); }

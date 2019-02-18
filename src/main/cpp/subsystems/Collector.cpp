@@ -17,7 +17,7 @@ const double Collector::BRIDGE_SPEED = 0.4;
 const double Collector::MANUAL_SPIT_SPEED = -1.0;
 const double Collector::MANUAL_INTAKE_FAST = 0.7;  //May want to change 
 const double Collector::MANUAL_INTAKE_SLOW = 0.4;
-
+bool lastStatePhotoeye = false;
 Collector::Collector() : Subsystem("Collector")
 { 
     collectorCage = new frc::DoubleSolenoid(1,2,3);
@@ -29,7 +29,7 @@ Collector::Collector() : Subsystem("Collector")
 	m_DeployCage = false;
 	
 }
-bool lastStatePhotoeye = false;
+
 void Collector::InitDefaultCommand() {}
 
 
@@ -86,44 +86,6 @@ void Collector::CollectorPeriodic(void)
 		RetractCage();
 		m_autocollect = false;
 	}
-
-	//Jared's smelly version
-	//LEDs for cargo collection
-	
-	//If the line sensors are retracted and photoeye transitions from low to high
-	if(!Robot::m_drivetrain->lineSensorsDeployed && IsCollectorPhotoeyeDetected() && !lastStatePhotoeye)
-	{
-		Robot::m_driverfeedback->UpdateLeftLEDs(ORANGE_rgb);
-		Robot::m_driverfeedback->UpdateRightLEDs(ORANGE_rgb);
-		lastStatePhotoeye = true;
-	}
-	//If the line sensors are deployed and photoeye transitions from high to low
-	else if(Robot::m_drivetrain->lineSensorsDeployed && !IsCollectorPhotoeyeDetected() && lastStatePhotoeye)
-	{
-		Robot::m_driverfeedback->LeftLEDsOff();
-	 	Robot::m_driverfeedback->RightLEDsOff();
-		lastStatePhotoeye = false;
-	}
-
-	//BenL's Superior flag thingy
-	// bool flag = false;
-	// if(!lineSensorsDeployed())
-	// {
-	// 	if(IsCollectorPhotoeyeDetected() && !flag)
-	// 	{
-	// 		flag = true;
-	// 		Robot::m_driverfeedback->UpdateLeftLEDs(ORANGE_rgb);
-	// 		Robot::m_driverfeedback->UpdateRightLEDs(ORANGE_rgb);
-	// 	}
-	// 	else if(flag && !IsCollectorPhotoeyeDetected())
-	// 	{
-	// 		Robot::m_driverfeedback->LeftLEDsOff();
-	// 		Robot::m_driverfeedback->RightLEDsOff();
-	// 		flag = false;
-	// 	}
-	// }
-
-
 	//~~~~~~~~~~~~~~~~~~~~Manual Collector Control~~~~~~~~~~~~~~~~~~~~~
 	
 	double yR = Robot::m_oi->OperatorGamepad()->GetRawAxis(GAMEPADMAP_AXIS_R_Y);

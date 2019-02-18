@@ -31,7 +31,7 @@ class Drivetrain : public frc::Subsystem {
 
     const static int LO_GEAR;
     const static int HI_GEAR;
-    const static int ENC_TICKS_PER_INCH;
+    const static double ENC_TICKS_PER_INCH;
 
     Drivetrain();
     void Init(void);
