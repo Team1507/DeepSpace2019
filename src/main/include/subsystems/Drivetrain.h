@@ -21,13 +21,13 @@ class Drivetrain : public frc::Subsystem {
     frc::AnalogInput* analog1; 
     frc::AnalogInput* analog2; 
     //variables
-  
-    bool lineSensorsDeployed;
+    
+    
     unsigned char m_currLineState;
-
+    
  public:    
 
-    
+    bool lineSensorsDeployed;
 
     const static int LO_GEAR;
     const static int HI_GEAR;
@@ -66,6 +66,8 @@ class Drivetrain : public frc::Subsystem {
     bool LineFollower(void);
     void LineSensorsRetract(void);
     void LineSensorsDeploy(void);
+    //bool IsLineSensorDeployed(void); BL is upset this didn't work :(
+    
     //Transmition Control
     void SetLowGear(void);
     void SetHighGear(void);

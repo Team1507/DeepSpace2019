@@ -53,7 +53,7 @@ void CmdGetCargoFromFloor::Execute()
 
         case STAGE3://Grab ball
             //Robot::m_collector->CollectorMotor(Collector::COLLECT_SPEED); Ben L said this looked unnecessary
-            if(Robot::m_collector->IsPhotoeyeDetected())//stops when detected
+            if(Robot::m_collector->IsCollectorPhotoeyeDetected())//stops when detected
             {
 		        Robot::m_collector->StopCollectorRollers();
                 std::cout<<"STAGE3 Done"<<std::endl;

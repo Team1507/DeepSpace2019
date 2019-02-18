@@ -161,7 +161,7 @@ void Drivetrain::DriveWithGamepad( void )
 		std::cout<<"LowGear"<<std::endl;
 	}
 
-	//**********Line Follower Code***********
+	//********************Line Follower Code*******************
 	if(bL) //if LEFT bumper pushed, Enable Line Follow if line is detected 
 	{
 		//If Sensors not deployed, deploy them
@@ -176,12 +176,13 @@ void Drivetrain::DriveWithGamepad( void )
 			//HEY REPLACE WITH THE NEW ARCADE DRIVE LINE
 		}
 	}
-	else 
+	else //If the bumper is not pushed, we are manual driving
 	{
-		//If sensors deployed, retract them
-		if( lineSensorsDeployed )
+		if( lineSensorsDeployed )//If sensors deployed, retract them and stop rumbling
+		{
+			Robot::m_driverfeedback->RumbleOff();//Because we don't want to constantly turn rumble off, we do it once here BL 
 			LineSensorsRetract();
-		//Use Gamepad to drive
+		}
 		Drive(yL, yR);
 		//differentialDrive->ArcadeDrive(yL,xR, true);
 		//HEY REPLACE WITH THE NEW ARCADE DRIVE LINE
@@ -189,7 +190,7 @@ void Drivetrain::DriveWithGamepad( void )
 		
 	// 	Arcade Drive
 	//differentialDrive->ArcadeDrive(yL,xR,  true); 
-	//^HEY REPLACE WITH THE NEW ARCADE DRIVE LINE
+	//^HEY REPLACE WITH THE NEW ARCADE DRIVE LINE //HEY Ben L thinks this is stupid here 
 }
 
 //**************************************************************
@@ -320,14 +321,12 @@ bool Drivetrain::LineFollower(void)
 				std::cout<<"Line lost, Leaving Follow."<<std::endl;
 				Robot::m_driverfeedback->UpdateLeftLEDs(BLUE_rgb);
 				Robot::m_driverfeedback->UpdateRightLEDs(BLUE_rgb);
-				Robot::m_driverfeedback->RumbleOn();
+				Robot::m_driverfeedback->RumbleOff();
 				return false;
 			}
 			else
 			{
 				frc::SmartDashboard::PutNumber("Current Line State", m_currLineState);
-				//RUMBLE TIME BABYYYYYYYYY WOOOOOO
-				//HEY light command stuff (not as cool as rumble but whatever)
 				switch(m_currLineState) //This is the switch for the actual line following
 				{
 					//THIS IS THE NIGHTMARE OF ALL THE CRAZY CASES. if 101...panic
@@ -339,7 +338,7 @@ bool Drivetrain::LineFollower(void)
 						break;
 					case 110:
 						leftFollowThrottle  =  BASE_THROTTLE; //- THROTTLE_ADJUSTMENT;
-						rightFollowThrottle =  BASE_THROTTLE + THROTTLE_ADJUSTMENT;                  //SHOULD be a little less but we might not need to change it
+						rightFollowThrottle =  BASE_THROTTLE + THROTTLE_ADJUSTMENT;            //SHOULD be a little less but we might not need to change it
 						Robot::m_driverfeedback->UpdateLeftLEDs(YELLOW_rgb);
 						Robot::m_driverfeedback->RightLEDsOff();
 						break;
@@ -351,7 +350,7 @@ bool Drivetrain::LineFollower(void)
 						break;
 					case 11:
 						leftFollowThrottle  = BASE_THROTTLE + THROTTLE_ADJUSTMENT;
-						rightFollowThrottle = BASE_THROTTLE; //- THROTTLE_ADJUSTMENT;               //SHOULD be a little less but we might not need to change it
+						rightFollowThrottle = BASE_THROTTLE; //- THROTTLE_ADJUSTMENT;         //SHOULD be a little less but we might not need to change it
 						Robot::m_driverfeedback->LeftLEDsOff();
 						Robot::m_driverfeedback->UpdateRightLEDs(YELLOW_rgb);
 						break;
@@ -394,16 +393,24 @@ bool Drivetrain::LineFollower(void)
 
 void Drivetrain::LineSensorsRetract(void)
 {
-	//RETRACT SENSORS HERE!!
+	//HEY RETRACT SENSORS HERE!!
 	lineSensorsDeployed = false;
 	std::cout << "Line Sensors Retract" << std::endl;
 }
 void Drivetrain::LineSensorsDeploy(void)
 {
-	//DEPLOY SENSORS HERE
+	//HEY DEPLOY SENSORS HERE
 	lineSensorsDeployed = true;
 	std::cout << "Line Sensors Deploy" << std::endl;
 }
+// bool IsLineSensorDeployed(void)
+// {
+// 	bool x = lineSensorsDeployed;
+// 	return x;
+// } I have no idea why its yelling at us BL
+
+
+
 //****************** TRANNY **************************
 
 void Drivetrain::SetLowGear( void )

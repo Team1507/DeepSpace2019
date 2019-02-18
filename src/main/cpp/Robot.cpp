@@ -67,7 +67,7 @@ void Robot::RobotPeriodic()
     m_elevator->ElevatorPeriodic();
     m_collector->CollectorPeriodic();
     m_carriage->CarriagePeriodic();
-    //m_driverfeedback->DriverFeedbackPeriodic();
+    m_driverfeedback->DriverFeedbackPeriodic();
      Write2Dashboard();
 
     //m_drivetrain->DriveWithGamepad(); 
@@ -136,6 +136,6 @@ void Write2Dashboard(void)
     SmartDashboard::PutBoolean("Front_Photoeye", Robot::m_carriage->IsFrontPhotoeyeDetected());
     SmartDashboard::PutBoolean("Rear_Photoeye", Robot::m_carriage->IsRearPhotoeyeDetected());
 
-    SmartDashboard::PutBoolean("Collector_Photoeye", Robot::m_collector->IsPhotoeyeDetected());
+    SmartDashboard::PutBoolean("Collector_Photoeye", Robot::m_collector->IsCollectorPhotoeyeDetected());
 
 }

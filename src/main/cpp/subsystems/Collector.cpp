@@ -1,4 +1,6 @@
 #include "subsystems/Collector.h"
+#include "subsystems/Drivetrain.h"
+#include "subsystems/Carriage.h"
 #include "Robot.h"
 #include "OI.h"
 #include "GamepadMap.h" 
@@ -10,7 +12,7 @@ const int Collector::DEPLOY_CAGE = 1;
 const int Collector::CLOSE_BRIDGE = 0;
 const int Collector::OPEN_BRIDGE = 1;
 const double Collector::COLLECT_SPEED = 0.3;
-const double Collector::BRIDGE_SPEED = 0.2;
+const double Collector::BRIDGE_SPEED = 0.4;
 
 const double Collector::MANUAL_SPIT_SPEED = -1.0;
 const double Collector::MANUAL_INTAKE_FAST = 0.7;  //May want to change 
@@ -22,11 +24,17 @@ Collector::Collector() : Subsystem("Collector")
 	collectorBridge = new frc::DoubleSolenoid(1,6,7);
     collectorPhotoeye = new frc::DigitalInput(7);
     collectorRollers =  new VictorSPX(14); 
-    //m_CageDeploy = false;
+    m_autocollect = false;
+	m_autoXfer = false;
+	m_DeployCage = false;
+	
 }
-
+bool lastStatePhotoeye = false;
 void Collector::InitDefaultCommand() {}
 
+
+
+//~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~PERIODIC START~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 void Collector::CollectorPeriodic(void)
 {
 	//~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~Bridge Open/Close Toggle~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -56,33 +64,96 @@ void Collector::CollectorPeriodic(void)
 	{
 		CollectorRollers(MANUAL_INTAKE_SLOW);
 	}
-	else
+	else if (!m_autocollect && !m_autoXfer) //if we aren't using auto collect and transfer then stop stop spinning
 	{
 		CollectorRollers(0.0);
 	}
-	//*********Auto Collector Control***********
+	//************Auto Collector Control**************
+	bool A_Pressed = Robot::m_oi->OperatorGamepad()->GetRawButtonPressed(GAMEPADMAP_BUTTON_A);
+	if (IsCageDeployed() && A_Pressed && (!m_autocollect)) //Start rollers
+	{
+		m_autocollect = true;
+		CollectorRollers(MANUAL_INTAKE_FAST);
+	}
+	else if (A_Pressed && m_autocollect) //Abort auto collection
+	{
+		CollectorRollers(0.0);
+		m_autocollect = false;
+	}
+	else if (m_autocollect && IsCollectorPhotoeyeDetected()) //Bring collector up if we have a ball
+	{
+		CollectorRollers(0.0);
+		RetractCage();
+		m_autocollect = false;
+	}
+
+	//Jared's smelly version
+	//LEDs for cargo collection
+	
+	//If the line sensors are retracted and photoeye transitions from low to high
+	if(!Robot::m_drivetrain->lineSensorsDeployed && IsCollectorPhotoeyeDetected() && !lastStatePhotoeye)
+	{
+		Robot::m_driverfeedback->UpdateLeftLEDs(ORANGE_rgb);
+		Robot::m_driverfeedback->UpdateRightLEDs(ORANGE_rgb);
+		lastStatePhotoeye = true;
+	}
+	//If the line sensors are deployed and photoeye transitions from high to low
+	else if(Robot::m_drivetrain->lineSensorsDeployed && !IsCollectorPhotoeyeDetected() && lastStatePhotoeye)
+	{
+		Robot::m_driverfeedback->LeftLEDsOff();
+	 	Robot::m_driverfeedback->RightLEDsOff();
+		lastStatePhotoeye = false;
+	}
+
+	//BenL's Superior flag thingy
+	// bool flag = false;
+	// if(!lineSensorsDeployed())
+	// {
+	// 	if(IsCollectorPhotoeyeDetected() && !flag)
+	// 	{
+	// 		flag = true;
+	// 		Robot::m_driverfeedback->UpdateLeftLEDs(ORANGE_rgb);
+	// 		Robot::m_driverfeedback->UpdateRightLEDs(ORANGE_rgb);
+	// 	}
+	// 	else if(flag && !IsCollectorPhotoeyeDetected())
+	// 	{
+	// 		Robot::m_driverfeedback->LeftLEDsOff();
+	// 		Robot::m_driverfeedback->RightLEDsOff();
+	// 		flag = false;
+	// 	}
+	// }
 
 
-
-
-
-
-
-	//~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~Manual Collector Control~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+	//~~~~~~~~~~~~~~~~~~~~Manual Collector Control~~~~~~~~~~~~~~~~~~~~~
 	
 	double yR = Robot::m_oi->OperatorGamepad()->GetRawAxis(GAMEPADMAP_AXIS_R_Y);
 	if(fabs(yR) <= DEADBAND_CONST) yR = 0;	//Deadband code
-	//if joystick pushed up, cage goes up
-	//if joystick pushed down, cage goes down
-	if(yR >= 0.5) DeployCage();
-	if(yR <= -0.5) RetractCage();
+	if(yR >= 0.5) DeployCage();//if joystick pushed up, cage goes up
+	if(yR <= -0.5) RetractCage();//if joystick pushed down, cage goes down
+
+	//************Auto Ball Transfer*****************
+	
+	if(Robot::m_oi->OperatorGamepad()->GetRawButtonPressed(GAMEPADMAP_BUTTON_B))
+	{
+		m_autoXfer = true;
+		OpenBridge();
+		CollectorRollers(0.4);
+		Robot::m_carriage->CarriageRollers(0.4);
+	}
+	else if(Robot::m_carriage->IsFrontPhotoeyeDetected() && m_autoXfer)
+	{
+		Robot::m_carriage->CarriageRollers(0.0); //mr b said this should go first and I agree benl. :))
+		m_autoXfer = false;
+		CloseBridge();
+		CollectorRollers(0.0);
+	}//HEY ask mr sielski if we should need an abort if the photoeye is broke
 }
 
 //********************************************END OF PERIODIC**********************************************************
 
 
 //********PhotoEye***********
-bool Collector::IsPhotoeyeDetected(void)
+bool Collector::IsCollectorPhotoeyeDetected(void)
 {
 	return collectorPhotoeye->Get();
 }

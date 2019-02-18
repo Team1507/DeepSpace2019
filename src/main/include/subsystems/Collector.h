@@ -14,11 +14,13 @@ class Collector : public frc::Subsystem {
     VictorSPX           *collectorRollers;
     bool m_DeployCage;
     bool m_OpenBridge;
+    bool m_autocollect;
  public:
+    bool m_autoXfer;
     Collector();
     void InitDefaultCommand() override;
     void CollectorPeriodic(void);
-    bool IsPhotoeyeDetected(void);
+    bool IsCollectorPhotoeyeDetected(void);
     void DeployCage(void);
     void RetractCage(void);
     void SetCage(int position);
