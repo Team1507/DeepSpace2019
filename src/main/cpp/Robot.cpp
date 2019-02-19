@@ -47,7 +47,7 @@ void Robot::RobotInit() {
     m_collector->RetractCage();
     m_carriage->TiltUp();
     m_collector->CloseBridge();
-    m_carriage->CloseLatch();
+    m_carriage->OpenLatch();
     m_drivetrain->ResetEncoders();
 
     //CAMERA  
@@ -79,6 +79,7 @@ void Robot::DisabledInit()
 {
     std::cout<<"Disabled Init"<<std::endl;
     m_driverfeedback->RumbleOff();
+    m_elevator->ClearReqElevatorValue();
 }
 
 void Robot::DisabledPeriodic() { frc::Scheduler::GetInstance()->Run(); }

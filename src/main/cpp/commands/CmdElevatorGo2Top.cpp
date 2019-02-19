@@ -10,7 +10,7 @@ CmdElevatorGo2Top::CmdElevatorGo2Top()
 // Called once when the command executes
 void CmdElevatorGo2Top::Initialize() 
 {
-    Robot::m_elevator->SetReqElevatorValue(Elevator::TOP_VALUE);  //was 
+    Robot::m_elevator->SetReqElevatorValue(Elevator::ROCKET_HIGH_VALUE);  //was 
    
 }
 void CmdElevatorGo2Top::Execute() {

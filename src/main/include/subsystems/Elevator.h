@@ -13,6 +13,8 @@ private:
 	TalonSRX* elevatorTalonSRX;
 	VictorSPX* elevatorVictorSPX;
 
+	int reqValue;
+
 public:
 	Elevator();
 	void InitDefaultCommand() override;
@@ -27,14 +29,16 @@ public:
 	void ClearElevatorEncoder(void);
 	double GetElevatorMotorDrive(void);
 	void SetReqElevatorValue(int value);
+	void ClearReqElevatorValue(void);
 
 	const static int BOT_VALUE;
-	const static int TOP_VALUE;     
 	const static int CARGO_VALUE; 	
-	const static int ROCKET_VALUE;
-	const static int CRUISE_VELOCITY;
-	const static int ACCELERATION; 	
-	
+	const static int ROCKET_MID_VALUE;
+	const static int ROCKET_HIGH_VALUE;  
+	const static double UP_DRIVE;          
+	const static double DOWN_DRIVE;        
+	const static double HOLD_DRIVE;           
+	const static int ENCODER_TOLERANCE;     
 };
 
 #endif

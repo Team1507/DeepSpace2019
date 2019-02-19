@@ -11,7 +11,7 @@ CmdElevatorGo2RocketMid::CmdElevatorGo2RocketMid()
 // Called once when the command executes
 void CmdElevatorGo2RocketMid::Initialize() 
 {
-    Robot::m_elevator->SetReqElevatorValue(Elevator::ROCKET_VALUE);  //was 
+    Robot::m_elevator->SetReqElevatorValue(Elevator::ROCKET_MID_VALUE);  //was 
    
 }
 void CmdElevatorGo2RocketMid::Execute() {
