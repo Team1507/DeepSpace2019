@@ -15,6 +15,7 @@ class Drivetrain : public frc::Subsystem {
     TalonSRX* rightDriveTalon;
     VictorSPX* rightDriveVictor;
     frc::DoubleSolenoid     *gearShift;
+    frc::DoubleSolenoid     *linesensors;
     AHRS *ahrs;	    //NavX
     //Line Sensor Pins
     frc::AnalogInput* analog0;

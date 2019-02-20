@@ -39,7 +39,7 @@ bool CmdTurn2Line::IsFinished() {
 
 void CmdTurn2Line::End() {
     Robot::m_drivetrain->Drive(0,0);
-    Robot::m_drivetrain->LineSensorsRetract();
+    //Robot::m_drivetrain->LineSensorsRetract();
 }
 
 

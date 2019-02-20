@@ -27,6 +27,7 @@ class Robot : public frc::TimedRobot {
     static Carriage *m_carriage;
     static Elevator *m_elevator;
     static DriverFeedback *m_driverfeedback;
+    static Compressor *m_compressor;
 
     void RobotInit() override;
     void RobotPeriodic() override;

@@ -8,7 +8,7 @@ const int Carriage::LATCH_OPEN = 1;
 const int Carriage::TILT_DOWN = 0;
 const int Carriage::TILT_UP = 1;
 const double Carriage::BRIDGE_SPEED = 0.4; 
-const double Carriage::GETTING_BALL_SPEED = 0.5;	//may want to change
+const double Carriage::GETTING_BALL_SPEED = -0.5;	//may want to change
 const double Carriage::SHOOTING_BALL_SPEED = 1.0;  //may want to change
 
 Carriage::Carriage() : Subsystem("Carriage") {
@@ -71,9 +71,12 @@ void Carriage::CarriagePeriodic()
 	//*****************Carrige Rollers Intake / Out / OutFast***************
 	if(!Robot::m_collector->m_autoXfer)
 	{ //if left trigger pushed get ball from human
-		if( Robot::m_oi->OperatorGamepad()->GetRawAxis(GAMEPADMAP_AXIS_L_TRIG) >= .5 )
+		if(Robot::m_oi->OperatorGamepad()->GetRawAxis(GAMEPADMAP_AXIS_L_TRIG) >= .5) 
 		{
-			CarriageRollers(GETTING_BALL_SPEED);
+			if(IsRearPhotoeyeDetected())
+				CarriageRollers(0.0);
+			else
+				CarriageRollers(GETTING_BALL_SPEED);
 		}
 	//if left bumper pushed shoot, if left bumper and back pushed, accept from bridge
 		else if( Robot::m_oi->OperatorGamepad()->GetRawButtonPressed(GAMEPADMAP_BUTTON_LBUMP) )

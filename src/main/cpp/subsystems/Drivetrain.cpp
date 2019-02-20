@@ -14,7 +14,7 @@
 #define BASE_THROTTLE      	.35  //.4	
 #define THROTTLE_ADJUSTMENT .08
 #define THROTTLE_MULTIPLIER	1.0
-#define LIMIT 0.8					//Arcade Drive power Limiter
+#define LIMIT 0.785					//Arcade Drive power Limiter
 
 //Drivetrain Constants
 const int Drivetrain::LO_GEAR = 0;
@@ -34,6 +34,8 @@ Drivetrain::Drivetrain() : Subsystem("Drivetrain")
  	rightDriveVictor = new VictorSPX(10);
 
 	gearShift         = new frc::DoubleSolenoid(1, 0, 1);	
+	linesensors       = new frc::DoubleSolenoid(1, 4, 5);	
+
 	
     ahrs  	= new AHRS(SPI::Port::kMXP);
 	
@@ -102,7 +104,7 @@ void Drivetrain::DrivetrainPeriodic(void)
 	frc::SmartDashboard::PutBoolean("L", leftEye);
 	frc::SmartDashboard::PutBoolean("C", centerEye);
 	frc::SmartDashboard::PutBoolean("R", rightEye);
-	frc::SmartDashboard::PutBoolean("Deployed", lineSensorsDeployed);
+	frc::SmartDashboard::PutBoolean("Line Sensors Deployed", lineSensorsDeployed);
 	
 	int currState = 0;
 	if(leftEye)  currState = currState + 100;
@@ -142,8 +144,8 @@ void Drivetrain::DriveWithGamepad( void )
 	double xR = -(Robot::m_oi->DriverGamepad()->GetRawAxis(GAMEPADMAP_AXIS_R_X)); //ben did this to fix L being R and R being L
 	double tL = Robot::m_oi->DriverGamepad()->GetRawAxis(GAMEPADMAP_AXIS_L_TRIG);
 	double tR = Robot::m_oi->DriverGamepad()->GetRawAxis(GAMEPADMAP_AXIS_R_TRIG);
-	//bool   bL = Robot::m_oi->DriverGamepad()->GetRawButton(GAMEPADMAP_BUTTON_LBUMP);
-	bool   bL = false;
+	bool   bL = Robot::m_oi->DriverGamepad()->GetRawButton(GAMEPADMAP_BUTTON_LBUMP);
+	//bool   bL = false;
 	
 	if (fabs(yL)<= deadzone) yL = 0;
 	if (fabs(xL)<= deadzone) xL = 0;
@@ -188,7 +190,7 @@ void Drivetrain::DriveWithGamepad( void )
 
 		CustomArcadeDrive(yL,xR, true);
 		//differentialDrive->ArcadeDrive(yL,xR, true);
-		//HEY REPLACE WITH THE NEW ARCADE DRIVE LINE
+		
 	}
 		
 	// 	Arcade Drive
@@ -199,8 +201,8 @@ void Drivetrain::DriveWithGamepad( void )
 //**************************************************************
 void Drivetrain::Drive( double left, double right )
 {
-	leftDriveTalon->Set(ControlMode::PercentOutput, left);
-	rightDriveTalon->Set(ControlMode::PercentOutput, right);
+	leftDriveTalon->Set(ControlMode::PercentOutput, left*(-1.0));
+	rightDriveTalon->Set(ControlMode::PercentOutput, right*(-1.0));
 }
 void Drivetrain::Stop( void )
 {
@@ -261,7 +263,7 @@ void Drivetrain::CustomArcadeDrive(double xSpeed, double zRotation, bool squareI
 			rightMotorOutput = xSpeed - zRotation;
 		}
 	}
-	Drive(Limit1507(leftMotorOutput), Limit1507(rightMotorOutput));
+	Drive(Limit1507(leftMotorOutput)*(-1.0), Limit1507(rightMotorOutput)*(-1.0));
 
 }
 //**************** AHRS (NavX) *********************
@@ -394,15 +396,16 @@ bool Drivetrain::LineFollower(void)
 
 }
 
+//Line Sensors Deploy/Retract
 void Drivetrain::LineSensorsRetract(void)
 {
-	//HEY RETRACT SENSORS HERE!!
+	linesensors->Set(DoubleSolenoid::kReverse);
 	lineSensorsDeployed = false;
 	std::cout << "Line Sensors Retract" << std::endl;
 }
 void Drivetrain::LineSensorsDeploy(void)
 {
-	//HEY DEPLOY SENSORS HERE
+	linesensors->Set(DoubleSolenoid::kForward);
 	lineSensorsDeployed = true;
 	std::cout << "Line Sensors Deploy" << std::endl;
 }

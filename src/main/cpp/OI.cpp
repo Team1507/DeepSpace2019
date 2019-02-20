@@ -1,5 +1,4 @@
 #include "OI.h"
-#include "commands/GrpTest2.h"
 #include "commands/CmdElevatorGo2Top.h"
 #include "commands/CmdElevatorGo2Bot.h"
 #include "commands/CmdElevatorGo2RocketMid.h"
@@ -9,6 +8,7 @@
 #include "commands/CmdDriveStr8.h"
 #include "commands/GrpStartLeftPlaceHatch.h"
 #include "commands/GrpStartRightPlaceHatch.h"
+#include "commands/GrpRightAutoNoSensors.h"
 
 OI::OI() {
     // Process operator interface input here.
@@ -17,10 +17,10 @@ OI::OI() {
     driver_gamepad = new frc::Joystick(0);
     operator_gamepad = new frc::Joystick(1);
 
-    //frc::SmartDashboard::PutData("GrpTest2 Command", new GrpTest2() );
-   
+    
     frc::SmartDashboard::PutData("GrpStartLeftPlaceHatch", new GrpStartLeftPlaceHatch() );
     frc::SmartDashboard::PutData("GrpStartRightPlaceHatch", new GrpStartRightPlaceHatch() );
+    frc::SmartDashboard::PutData("GrpRightAutoNoSensors", new GrpRightAutoNoSensors() );
 
 	  frc::SmartDashboard::PutData("ZeroEncoder", new CmdDriveClearAll() );
     

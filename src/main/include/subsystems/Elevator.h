@@ -37,7 +37,8 @@ public:
 	const static int ROCKET_HIGH_VALUE;  
 	const static double UP_DRIVE;          
 	const static double DOWN_DRIVE;        
-	const static double HOLD_DRIVE;           
+	const static double HOLD_DRIVE;
+	const static double HOME_DRIVE;                      
 	const static int ENCODER_TOLERANCE;     
 };
 

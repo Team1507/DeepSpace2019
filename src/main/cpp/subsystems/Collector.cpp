@@ -91,8 +91,12 @@ void Collector::CollectorPeriodic(void)
 	double yR = Robot::m_oi->OperatorGamepad()->GetRawAxis(GAMEPADMAP_AXIS_R_Y);
 	if(fabs(yR) <= DEADBAND_CONST) yR = 0;	//Deadband code
 	if(yR >= 0.5) DeployCage();//if joystick pushed up, cage goes up
-	if(yR <= -0.5) RetractCage();//if joystick pushed down, cage goes down
-
+	if(yR <= -0.5) 
+	{
+		CollectorRollers(0.0);
+		RetractCage();
+		m_autocollect = false; //if joystick pushed down, cage goes down
+	}
 	//************Auto Ball Transfer*****************
 	
 	if(Robot::m_oi->OperatorGamepad()->GetRawButtonPressed(GAMEPADMAP_BUTTON_B))

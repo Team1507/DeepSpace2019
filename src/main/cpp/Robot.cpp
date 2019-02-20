@@ -3,6 +3,9 @@
 #include <frc/smartdashboard/SmartDashboard.h>
 #include "GamepadMap.h"
 #include <cameraserver/CameraServer.h>
+#include <frc/wpilib.h>
+#include "frc/Compressor.h"
+
 //#include <CameraServer.h> //new
 
 OI* Robot::m_oi;
@@ -12,7 +15,7 @@ Collector* Robot::m_collector;
 Carriage* Robot::m_carriage;
 Elevator *Robot::m_elevator;
 DriverFeedback* Robot::m_driverfeedback;
-
+Compressor* Robot::m_compressor;
 void Write2Dashboard(void);
 
 void Robot::RobotInit() {
@@ -27,7 +30,7 @@ void Robot::RobotInit() {
     m_carriage        = new Carriage();
     m_elevator        = new Elevator();
     m_driverfeedback  = new DriverFeedback();
-    
+    m_compressor      = new Compressor(1);
     //OI **MUST** be after all subsystem Inits
     m_oi = new OI();
 
@@ -53,10 +56,10 @@ void Robot::RobotInit() {
     //CAMERA  
     cs::UsbCamera camera = frc::CameraServer::GetInstance()->StartAutomaticCapture(0);
     camera.SetConnectionStrategy(cs::VideoSource::kConnectionKeepOpen);
-    camera.SetResolution(320, 240); //was 160,120
+    camera.SetResolution(160, 120); //was 320,240
         //camera.SetVideoMode(cs::VideoMode::kMJPEG, 320, 240, 8); //kGray, kRGB565
-    camera.SetFPS(15);
-    camera.SetBrightness(20);       //100-most bright //0- most dark //was 20
+    camera.SetFPS(15); //was 10
+    camera.SetBrightness(30);       //100-most bright //0- most dark //was 20
         //camera.SetVideoMode() //stinky line don't worry about it
         //camera.SetWhiteBalanceManual(cs::VideoCamera::kFixedFluorescent1);
     camera.SetExposureManual(38);   //0- Mbps 0.73, darker //100- Mbps .31, lighter 
@@ -73,6 +76,14 @@ void Robot::RobotPeriodic()
 
     //m_drivetrain->DriveWithGamepad(); 
     //HEY try putting this line back in if something doesn't work JM
+
+
+    
+    if(m_compressor->GetCompressorCurrentTooHighStickyFault())
+    {
+        std::cout<<"PCM sticky faults cleared"<<std::endl;
+        m_compressor->ClearAllPCMStickyFaults();
+    }
 }
 
 void Robot::DisabledInit() 

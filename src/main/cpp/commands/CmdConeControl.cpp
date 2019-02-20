@@ -1,8 +1,8 @@
 #include "commands/CmdConeControl.h"
 #include "Robot.h"
-CmdConeControl::CmdConeControl(bool coneUp)
+CmdConeControl::CmdConeControl(bool makeConeUp)
 {
-    m_coneUp = coneUp;
+    m_coneUp = makeConeUp;
     Requires( Robot::m_carriage);
 }
 

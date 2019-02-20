@@ -9,7 +9,7 @@ CmdHatchEject::CmdHatchEject() {
 // Called just before this Command runs the first time
 void CmdHatchEject::Initialize() 
 {
-  Robot::m_carriage->SetLatch(Carriage::LATCH_OPEN);//May need to be changed to latch closed
+  Robot::m_carriage->SetLatch(Carriage::LATCH_CLOSE);
 }
 
 void CmdHatchEject::Execute() {}

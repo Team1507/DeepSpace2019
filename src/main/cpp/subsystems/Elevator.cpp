@@ -10,13 +10,14 @@
 #define KPIDLOOPIDX     0
 #define KTIMEOUTMS      0
 
-const int Elevator::BOT_VALUE         = 0;
-const int Elevator::CARGO_VALUE 	  = 5486;
+const int Elevator::BOT_VALUE         = -1000;
+const int Elevator::CARGO_VALUE 	  = 5486 + 1452;	//+6 inches higher
 const int Elevator::ROCKET_MID_VALUE  = 13253;
-const int Elevator::ROCKET_HIGH_VALUE = 26244;
+const int Elevator::ROCKET_HIGH_VALUE = 27000; // was 26244
 const double Elevator::UP_DRIVE       = 1.0;
-const double Elevator::DOWN_DRIVE     = -0.2; //was -0.1
+const double Elevator::DOWN_DRIVE     = -0.05; //was -0.2
 const double Elevator::HOLD_DRIVE     = 0.15; //was 0.1
+const double Elevator::HOME_DRIVE     = -0.3; //was -0.25
 const int Elevator::ENCODER_TOLERANCE = 484; //was 242
 
 Elevator::Elevator() : frc::Subsystem("Elevator")
@@ -88,15 +89,25 @@ void Elevator::ElevatorPeriodic() {
                 elevatorTalonSRX->Set(ControlMode::PercentOutput, UP_DRIVE);
             if(currValue > reqValue)
             {
-                std::cout<<"down drive"<<std::endl;
-                elevatorTalonSRX->Set(ControlMode::PercentOutput, DOWN_DRIVE);
+				if(reqValue == BOT_VALUE)
+				{
+					elevatorTalonSRX->Set(ControlMode::PercentOutput, HOME_DRIVE);
+				}
+				else
+				{
+					//std::cout<<"down drive"<<std::endl;
+                	elevatorTalonSRX->Set(ControlMode::PercentOutput, DOWN_DRIVE);
+				}
+                
             }
         }
-        else  
-            {
-            std::cout<<"hold drive"<<std::endl;
-            elevatorTalonSRX->Set(ControlMode::PercentOutput, HOLD_DRIVE);
-            }
+        else
+		{
+			if(!GetElevatorLimitSwitchBot())
+				elevatorTalonSRX->Set(ControlMode::PercentOutput, HOLD_DRIVE);
+			else
+            	elevatorTalonSRX->Set(ControlMode::PercentOutput, 0.0);
+        }
    }
 }
 void Elevator::TalonSRXinit(void)

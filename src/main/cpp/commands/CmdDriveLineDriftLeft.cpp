@@ -23,6 +23,7 @@ void CmdDriveLineDriftLeft::Initialize()
 
 	if( m_timeout > 0.0)
 	{
+    std::cout<<"CmdDriveLine DriftLeft: setting Timeout"<<std::endl;
 		SetTimeout (m_timeout);
 	}
 
@@ -39,8 +40,10 @@ void CmdDriveLineDriftLeft::Execute()
 	//If line found, returns true and we do nothing
 	//If line not found, returns false and we have to drive
 	if( !Robot::m_drivetrain->LineFollower() )
-		Robot::m_drivetrain->Drive(m_power - errorAngle*kp  ,  m_power + errorAngle*kp ); 
-	
+  {
+			Robot::m_drivetrain->Drive(m_power - errorAngle*kp  ,  m_power + errorAngle*kp ); 
+      std::cout<<"CmdDriveLine DriftLeft: Line not found, driving left"<<std::endl;
+	}	
 }
 
 // Make this return true when this Command no longer needs to run execute()
@@ -50,12 +53,15 @@ bool CmdDriveLineDriftLeft::IsFinished()
 	double l_dir = Robot::m_drivetrain->GetLeftEncoder()/Drivetrain::ENC_TICKS_PER_INCH;
 	double r_dir = Robot::m_drivetrain->GetRightEncoder()/Drivetrain::ENC_TICKS_PER_INCH;
 
-	if(  (l_dir > m_distance) || (r_dir > m_distance)  )
-	  return true;
+	if (  (l_dir > m_distance) || (r_dir > m_distance)  )
+  {
+      std::cout<<"CmdDriveLine DriftLeft: exceeded encoder target, exiting..."<<std::endl;
+	    return true;
+	}
 
 	if ((m_timeout>0.0) && IsTimedOut())
 	{
-		std::cout<<"CmdDriveFwdGyro: Timeout"<<std::endl;
+    std::cout<<"CmdDriveLine DriftLeft: Timeout, exiting..."<<std::endl;
 		return true;
 	}
 
@@ -65,16 +71,16 @@ bool CmdDriveLineDriftLeft::IsFinished()
 // Called once after isFinished returns true
 void CmdDriveLineDriftLeft::End() 
 {
-  if(m_stop)
-	{
-		std::cout<<"GyroAngle ";
+
+	Robot::m_drivetrain->LineSensorsRetract();
+    std::cout<<"GyroAngle ";
 		std::cout<<Robot::m_drivetrain->GetGyroAngle()<<std::endl;
 		std::cout<<"EncoderValueL ";
 		std::cout<<Robot::m_drivetrain->GetLeftEncoder()<<std::endl;
 		std::cout<<"EncoderValueR ";
 		std::cout<<Robot::m_drivetrain->GetRightEncoder()<<std::endl;
+  if(m_stop)
 		Robot::m_drivetrain->Stop();
-	}
 }
 
 // Called when another command which requires one or more of the same
