@@ -18,9 +18,9 @@ class Drivetrain : public frc::Subsystem {
     frc::DoubleSolenoid     *linesensors;
     AHRS *ahrs;	    //NavX
     //Line Sensor Pins
-    frc::AnalogInput* analog0;
-    frc::AnalogInput* analog1; 
-    frc::AnalogInput* analog2; 
+   //  frc::AnalogInput* analog0;
+   //  frc::AnalogInput* analog1; 
+   //  frc::AnalogInput* analog2; 
     //variables
     
     

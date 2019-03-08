@@ -86,20 +86,27 @@ void Collector::CollectorPeriodic(void)
 		RetractCage();
 		m_autocollect = false;
 	}
+
 	//~~~~~~~~~~~~~~~~~~~~Manual Collector Control~~~~~~~~~~~~~~~~~~~~~
-	
 	double yR = Robot::m_oi->OperatorGamepad()->GetRawAxis(GAMEPADMAP_AXIS_R_Y);
 	if(fabs(yR) <= DEADBAND_CONST) yR = 0;	//Deadband code
-	if(yR >= 0.5) DeployCage();//if joystick pushed up, cage goes up
-	if(yR <= -0.5) 
+	if(yR >= 0.5) DeployCage();		//if joystick pushed Down, cage goes Down
+	if(yR <= -0.5) 					//if joystick pushed Up, cage goes Up
 	{
 		CollectorRollers(0.0);
 		RetractCage();
-		m_autocollect = false; //if joystick pushed down, cage goes down
+		m_autocollect = false; 
+
+		//*** Use Collector UP as a reset to all - JIC ***
+		CloseBridge();
+		Robot::m_carriage->CarriageRollers(0.0); 
+		m_autoXfer = false;
+
 	}
-	//************Auto Ball Transfer*****************
 	
-	if(Robot::m_oi->OperatorGamepad()->GetRawButtonPressed(GAMEPADMAP_BUTTON_B))
+	
+	//************Auto Ball Transfer*****************
+	if(Robot::m_oi->OperatorGamepad()->GetRawButtonPressed(GAMEPADMAP_BUTTON_B) && !IsCageDeployed() )
 	{
 		m_autoXfer = true;
 		OpenBridge();

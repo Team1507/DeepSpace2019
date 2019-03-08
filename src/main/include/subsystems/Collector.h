@@ -6,7 +6,7 @@
 #include "ctre/Phoenix.h"
 
 class Collector : public frc::Subsystem {
- private:
+private:
     
     frc::DoubleSolenoid *collectorCage;
     frc::DoubleSolenoid *collectorBridge;
@@ -15,8 +15,9 @@ class Collector : public frc::Subsystem {
     bool m_DeployCage;
     bool m_OpenBridge;
     bool m_autocollect;
- public:
-    bool m_autoXfer;
+
+public:
+    bool m_autoXfer;    //!!! This should be private !!!!!!
     Collector();
     void InitDefaultCommand() override;
     void CollectorPeriodic(void);

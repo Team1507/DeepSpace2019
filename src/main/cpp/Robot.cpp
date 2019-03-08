@@ -8,6 +8,13 @@
 
 //#include <CameraServer.h> //new
 
+
+//Autonomous Includes
+#include "Commands/AutoDoNothing.h"
+#include "Commands/AutoDriveStr8.h"
+
+
+
 OI* Robot::m_oi;
 
 Drivetrain* Robot::m_drivetrain;
@@ -34,9 +41,12 @@ void Robot::RobotInit() {
     //OI **MUST** be after all subsystem Inits
     m_oi = new OI();
 
-
     ahrs = new AHRS(SPI::Port::kMXP);
     
+    //**** AUTONOMOUS CHOOSER ********
+    m_chooser.SetDefaultOption("AutoDoNothing",  new AutoDoNothing()  );
+    m_chooser.AddOption("AutoDriveStr8", new AutoDriveStr8() );
+
     frc::SmartDashboard::PutData("Auto Modes", &m_chooser);
 
     //Subsystem Init
@@ -53,16 +63,16 @@ void Robot::RobotInit() {
     m_carriage->OpenLatch();
     m_drivetrain->ResetEncoders();
 
-    //CAMERA  
-    cs::UsbCamera camera = frc::CameraServer::GetInstance()->StartAutomaticCapture(0);
-    camera.SetConnectionStrategy(cs::VideoSource::kConnectionKeepOpen);
-    camera.SetResolution(160, 120); //was 320,240
-        //camera.SetVideoMode(cs::VideoMode::kMJPEG, 320, 240, 8); //kGray, kRGB565
-    camera.SetFPS(15); //was 10
-    camera.SetBrightness(30);       //100-most bright //0- most dark //was 20
-        //camera.SetVideoMode() //stinky line don't worry about it
-        //camera.SetWhiteBalanceManual(cs::VideoCamera::kFixedFluorescent1);
-    camera.SetExposureManual(38);   //0- Mbps 0.73, darker //100- Mbps .31, lighter 
+    //CAMERA ~~~Replaced with rasberry pi 3/1/19~~~  
+    // cs::UsbCamera camera = frc::CameraServer::GetInstance()->StartAutomaticCapture(0);
+    // camera.SetConnectionStrategy(cs::VideoSource::kConnectionKeepOpen);
+    // camera.SetResolution(160, 120); //was 320,240
+    //     //camera.SetVideoMode(cs::VideoMode::kMJPEG, 320, 240, 8); //kGray, kRGB565
+    // camera.SetFPS(15); //was 10
+    // camera.SetBrightness(30);       //100-most bright //0- most dark //was 20
+    //     //camera.SetVideoMode() //stinky line don't worry about it
+    //     //camera.SetWhiteBalanceManual(cs::VideoCamera::kFixedFluorescent1);
+    // camera.SetExposureManual(38);   //0- Mbps 0.73, darker //100- Mbps .31, lighter 
 }
 
 void Robot::RobotPeriodic() 
@@ -72,18 +82,9 @@ void Robot::RobotPeriodic()
     m_collector->CollectorPeriodic();
     m_carriage->CarriagePeriodic();
     m_driverfeedback->DriverFeedbackPeriodic();
-     Write2Dashboard();
-
-    //m_drivetrain->DriveWithGamepad(); 
-    //HEY try putting this line back in if something doesn't work JM
+    Write2Dashboard();
 
 
-    
-    if(m_compressor->GetCompressorCurrentTooHighStickyFault())
-    {
-        std::cout<<"PCM sticky faults cleared"<<std::endl;
-        m_compressor->ClearAllPCMStickyFaults();
-    }
 }
 
 void Robot::DisabledInit() 
@@ -97,24 +98,29 @@ void Robot::DisabledPeriodic() { frc::Scheduler::GetInstance()->Run(); }
 
 void Robot::AutonomousInit() {
     std::cout<<"Auto Init"<<std::endl;
-    m_carriage->TiltDown();    
+    //m_carriage->TiltDown();    NO Not here!  Must be Auto Command
 
-  // std::string autoSelected = frc::SmartDashboard::GetString(
-  //     "Auto Selector", "Default");
-  // if (autoSelected == "My Auto") {
-  //   m_autonomousCommand = &m_myAuto;
-  // } else {
-  //   m_autonomousCommand = &m_defaultAuto;
-  // }
 
-  m_autonomousCommand = m_chooser.GetSelected();
+    m_autonomousCommand = m_chooser.GetSelected();
 
-  if (m_autonomousCommand != nullptr) {
-    m_autonomousCommand->Start();
-  }
+    if (m_autonomousCommand != nullptr) {
+        m_autonomousCommand->Start();
+    }
 }
 
-void Robot::AutonomousPeriodic() { frc::Scheduler::GetInstance()->Run(); }
+void Robot::AutonomousPeriodic() 
+{ 
+    frc::Scheduler::GetInstance()->Run(); 
+
+    //Check for Abort
+    if( m_oi->DriverGamepad()->GetRawButtonPressed(GAMEPADMAP_BUTTON_Y) && (m_autonomousCommand != nullptr))
+    {
+        m_autonomousCommand->Cancel();
+        m_autonomousCommand = nullptr;
+        std::cout<<"Auto Aborted!!!!"<<std::endl; 
+    }
+
+}
 
 void Robot::TeleopInit() 
 {
@@ -127,7 +133,17 @@ void Robot::TeleopInit()
     }
 }
 
-void Robot::TeleopPeriodic() { frc::Scheduler::GetInstance()->Run(); }
+void Robot::TeleopPeriodic() 
+{ 
+    frc::Scheduler::GetInstance()->Run(); 
+
+    //Check for driver Abort push and ignore in teleop
+    //This only occurs in back-to-back auto testing
+    if( m_oi->DriverGamepad()->GetRawButtonPressed(GAMEPADMAP_BUTTON_Y) )
+    {
+        //Do nothing.  Just ignore 
+    }
+}
 
 void Robot::TestPeriodic() {}
 
