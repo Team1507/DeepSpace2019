@@ -56,7 +56,9 @@
     "type_traits": "cpp",
     "tuple": "cpp",
     "typeinfo": "cpp",
-    "utility": "cpp"
+    "utility": "cpp",
+    "bitset": "cpp",
+    "numeric": "cpp"
   },
   "C_Cpp.configurationWarnings": "Disabled"
 }

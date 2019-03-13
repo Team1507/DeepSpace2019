@@ -2,6 +2,7 @@
 #include "commands/AutoDoNothing.h"
 #include "commands/CmdPrintAutoText.h"
 #include "commands/CmdDriveClearAll.h"
+#include "commands/CmdSetHumanDriver.h"
 
 #include "commands/CmdConeControl.h"
 
@@ -10,4 +11,5 @@ AutoDoNothing::AutoDoNothing() {
 
 	AddSequential( new CmdDriveClearAll() );
 	AddSequential( new CmdConeControl(false) );	
+	AddSequential( new CmdSetHumanDriver() );	
 }

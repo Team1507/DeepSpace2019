@@ -28,6 +28,11 @@ class Robot : public frc::TimedRobot {
     static Elevator *m_elevator;
     static DriverFeedback *m_driverfeedback;
     static Compressor *m_compressor;
+    static PowerDistributionPanel *m_pdp;
+
+   //Global Variables
+   static bool human_driver;
+
 
     void RobotInit() override;
     void RobotPeriodic() override;

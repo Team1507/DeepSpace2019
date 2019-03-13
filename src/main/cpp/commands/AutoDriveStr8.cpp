@@ -6,6 +6,8 @@
 #include "Commands/CmdDriveClearEncoder.h"
 #include "commands/CmdDriveFwdGyro.h"
 #include "commands/CmdConeControl.h"
+#include "Commands/CmdBuzzGamepad.h"
+#include "commands/CmdSetHumanDriver.h"
 
 
 AutoDriveStr8::AutoDriveStr8() {
@@ -18,19 +20,10 @@ AutoDriveStr8::AutoDriveStr8() {
 	//                               power,heading, distance, stop, timeout)
 	AddSequential(new CmdDriveFwdGyro(0.6,   0.0,      1000,   true, 1.5    ));  
 
-	//testing backup on AutoSwitchRightHighGear
-	//AddSequential(new CmdDriveManual(-0.3, -0.4, 0.5));  //was .3,.3,.5;
-	//AddSequential(new CmdDriveManual(-0.3, -0.4, 1.5));  //was -.4,-.5,1.0;
-	//AddSequential(new CmdDriveManual(-0.5, -0.0, 0.5));  //was -.7, .0, 0.65  //Spin left side to point at pile
-
-
-	//testing backup on AutoSwitchLeftHighGear
-	//AddSequential(new CmdDriveManual(-0.4, -0.3, 0.5));  //was .3,.3,.5;
-	//AddSequential(new CmdDriveManual(-0.4, -0.3, 1.5));  //was -.4,-.3,1.0;
-	//AddSequential(new CmdDriveManual(-0.0, -0.5, 0.5));  //Spin right side to point at pile
-
-
+	//Done
 	AddSequential( new CmdDriveManual(0.0, 0.0, 0) );	//Do we want to stop at end?
 	AddSequential( new CmdConeControl(false) );
+    AddSequential( new CmdBuzzGamepad() );	
 	AddSequential( new CmdPrintAutoText("Auto Done") );
+	AddSequential( new CmdSetHumanDriver() );	
 }
