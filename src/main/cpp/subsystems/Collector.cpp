@@ -84,6 +84,7 @@ void Collector::CollectorPeriodic(void)
 	{
 		CollectorRollers(0.0);
 		RetractCage();
+			//OpenBridge();//Just added for autocollet - NO TOO FAST.  Need a delay
 		m_autocollect = false;
 	}
 
@@ -110,7 +111,7 @@ void Collector::CollectorPeriodic(void)
 	{
 		m_autoXfer = true;
 		OpenBridge();
-		CollectorRollers(0.4);
+		CollectorRollers(0.7);//was 0.4
 		Robot::m_carriage->CarriageRollers(0.4);
 	}
 	else if(Robot::m_carriage->IsFrontPhotoeyeDetected() && m_autoXfer)

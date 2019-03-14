@@ -27,7 +27,7 @@ AutoRightHatch::AutoRightHatch()
 
     //Drive to Cargo
 	AddSequential(new CmdDriveClearEncoder() );
-	AddSequential(new CmdDriveFwdGyro(0.6,   20.0,      132,   true, 0.0    ));  
+	AddSequential(new CmdDriveFwdGyro(0.6,   20.0,      102,   true, 0.0    ));  //was 132
 
     //Hard Left turn
     //AddSequential(new CmdDriveTurn2Heading(0.6, -90));

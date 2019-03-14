@@ -134,7 +134,7 @@ void Robot::DisabledPeriodic() { frc::Scheduler::GetInstance()->Run(); }
 
 void Robot::AutonomousInit() {
     std::cout<<"Auto Init"<<std::endl;
-    //m_carriage->TiltDown();    NO Not here!  Must be Auto Command
+    m_carriage->TiltDown();    //NO Not here!  Must be Auto Command
     human_driver = false;   //In Auto, Human driver false until routiene completed
 
 

@@ -8,7 +8,7 @@ const int Carriage::LATCH_OPEN = 1;
 const int Carriage::TILT_DOWN = 0;
 const int Carriage::TILT_UP = 1;
 const double Carriage::BRIDGE_SPEED = 0.4; 
-const double Carriage::GETTING_BALL_SPEED = -0.5;	//may want to change
+const double Carriage::GETTING_BALL_SPEED = -1.0;	//may want to changewas -0.5, then 0.7
 const double Carriage::SHOOTING_BALL_SPEED = 1.0;  //may want to change
 
 Carriage::Carriage() : Subsystem("Carriage") {
