@@ -11,6 +11,7 @@
 #include "Commands/CmdBuzzGamepad.h"
 #include "Commands/CmdDriveTurn2Angle.h"
 #include "commands/CmdSetHumanDriver.h"
+#include "Commands\CmdDriveClearEncoderV2.h"
 
 
 AutoRightHatch::AutoRightHatch() 
@@ -26,7 +27,8 @@ AutoRightHatch::AutoRightHatch()
 	AddSequential(new CmdDriveFwdGyro(0.6,   0.0,      1000,   true, 1.5    ));  
 
     //Drive to Cargo
-	AddSequential(new CmdDriveClearEncoder() );
+	//AddSequential(new CmdDriveClearEncoder() );
+	AddSequential(new CmdDriveClearEncoderV2() );
 	AddSequential(new CmdDriveFwdGyro(0.6,   20.0,      102,   true, 0.0    ));  //was 132
 
     //Hard Left turn
