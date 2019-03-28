@@ -27,6 +27,7 @@ Collector::Collector() : Subsystem("Collector")
     m_autocollect = false;
 	m_autoXfer = false;
 	m_DeployCage = false;
+	m_ballcount = 0;
 	
 }
 
@@ -70,22 +71,31 @@ void Collector::CollectorPeriodic(void)
 	}
 	//************Auto Collector Control**************
 	bool A_Pressed = Robot::m_oi->OperatorGamepad()->GetRawButtonPressed(GAMEPADMAP_BUTTON_A);
+	
 	if (IsCageDeployed() && A_Pressed && (!m_autocollect)) //Start rollers
 	{
 		m_autocollect = true;
 		CollectorRollers(MANUAL_INTAKE_FAST);
+		m_ballcount = 0;
 	}
 	else if (A_Pressed && m_autocollect) //Abort auto collection
 	{
 		CollectorRollers(0.0);
 		m_autocollect = false;
+		m_ballcount = 0;
 	}
-	else if (m_autocollect && IsCollectorPhotoeyeDetected()) //Bring collector up if we have a ball
+
+	else if (m_autocollect && IsCollectorPhotoeyeDetected() && (m_ballcount >=  10) )  //Bring collector up if we have a ball
 	{
 		CollectorRollers(0.0);
 		RetractCage();
 			//OpenBridge();//Just added for autocollet - NO TOO FAST.  Need a delay
 		m_autocollect = false;
+		m_ballcount = 0;
+	}
+	else if(m_autocollect && IsCollectorPhotoeyeDetected())
+	{
+		m_ballcount++;
 	}
 
 	//~~~~~~~~~~~~~~~~~~~~Manual Collector Control~~~~~~~~~~~~~~~~~~~~~
@@ -102,6 +112,7 @@ void Collector::CollectorPeriodic(void)
 		CloseBridge();
 		Robot::m_carriage->CarriageRollers(0.0); 
 		m_autoXfer = false;
+		m_ballcount = 0;
 
 	}
 	

@@ -15,6 +15,8 @@ private:
     bool m_DeployCage;
     bool m_OpenBridge;
     bool m_autocollect;
+    int  m_ballcount;
+    
 
 public:
     bool m_autoXfer;    //!!! This should be private !!!!!!

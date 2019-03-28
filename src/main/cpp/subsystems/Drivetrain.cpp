@@ -10,7 +10,7 @@
 #include "commands/CmdDriveWithGamepad.h"
 
 //Constant Defines
-#define LIMIT 0.8125					//Arcade Drive power Limiter //was 0.785
+#define LIMIT 0.91507					//Arcade Drive power Limiter //was 0.8125
 
 //Drivetrain Constants
 const int Drivetrain::LO_GEAR = 0;
